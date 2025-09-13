@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  HomeIcon, 
-  CurrencyDollarIcon, 
+import { motion } from 'framer-motion';
+import {
+  HomeIcon,
+  CurrencyDollarIcon,
   DocumentTextIcon,
   UserGroupIcon,
   Cog6ToothIcon,
@@ -56,18 +57,23 @@ const Layout = ({ children }) => {
   const navItems = getNavItems();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <motion.header
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-surface shadow-sm border-b border-border"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <BanknotesIcon className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <BanknotesIcon className="w-5 h-5 text-textPrimary" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-xl font-bold text-textPrimary">
                   Fund Tracker
                 </span>
               </Link>
@@ -83,8 +89,8 @@ const Layout = ({ children }) => {
                     to={item.href}
                     className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-textMuted hover:text-textPrimary hover:bg-surface'
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
@@ -99,16 +105,16 @@ const Layout = ({ children }) => {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-sm">
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-textPrimary font-medium">
                       {user?.departmentName || user?.email}
                     </p>
-                    <p className="text-gray-500 capitalize">
+                    <p className="text-textMuted capitalize">
                       {user?.role} {user?.departmentCode && `(${user.departmentCode})`}
                     </p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                    className="flex items-center space-x-1 px-3 py-2 text-sm text-textMuted hover:text-error transition-colors"
                   >
                     <ArrowRightOnRectangleIcon className="w-4 h-4" />
                     <span>Logout</span>
@@ -118,13 +124,13 @@ const Layout = ({ children }) => {
                 <div className="flex items-center space-x-2">
                   <Link
                     to="/login"
-                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+                    className="px-4 py-2 text-sm font-medium text-textMuted hover:text-textPrimary"
                   >
                     Login
                   </Link>
                   <Link
                     to="/department/signup"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-textPrimary bg-primary rounded-md hover:bg-primary transition-colors"
                   >
                     Department Signup
                   </Link>
@@ -135,7 +141,7 @@ const Layout = ({ children }) => {
         </div>
 
         {/* Mobile navigation */}
-        <div className="md:hidden border-t border-gray-200">
+        <div className="md:hidden border-t border-border">
           <div className="px-2 py-3 space-y-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.href;
@@ -145,8 +151,8 @@ const Layout = ({ children }) => {
                   to={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-primary/20 text-primary'
+                      : 'text-textMuted hover:text-textPrimary hover:bg-surface'
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
@@ -156,7 +162,7 @@ const Layout = ({ children }) => {
             })}
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -164,20 +170,20 @@ const Layout = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-surface border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               © 2024 Transparent Fund-Tracking Platform. Built for Government Transparency.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">
+              <Link to="/" className="text-sm text-textMuted hover:text-textPrimary">
                 Public Dashboard
               </Link>
-              <Link to="/budgets" className="text-sm text-gray-600 hover:text-gray-900">
+              <Link to="/budgets" className="text-sm text-textMuted hover:text-textPrimary">
                 View Budgets
               </Link>
-              <Link to="/transactions" className="text-sm text-gray-600 hover:text-gray-900">
+              <Link to="/transactions" className="text-sm text-textMuted hover:text-textPrimary">
                 View Transactions
               </Link>
             </div>

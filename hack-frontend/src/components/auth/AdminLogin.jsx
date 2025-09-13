@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { authAPI } from '../../services/api';
@@ -29,18 +30,23 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 bg-red-600 rounded-lg flex items-center justify-center">
-            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto h-12 w-12 bg-error rounded-lg flex items-center justify-center">
+            <svg className="h-6 w-6 text-textPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-textPrimary">
             Admin Login
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-textMuted">
             Access the administrative dashboard
           </p>
         </div>
@@ -60,7 +66,7 @@ const AdminLogin = () => {
                   }
                 })}
                 type="email"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
+              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-error focus:border-error focus:z-10 sm:text-sm"
                 placeholder="Enter admin email"
               />
               {errors.email && (
@@ -103,29 +109,31 @@ const AdminLogin = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Sign In as Admin
-          </button>
+          <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-textPrimary bg-error hover:bg-error/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-error"
+                >
+                  Sign In as Admin
+                </motion.button>
 
           <div className="text-center space-y-2">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               Default credentials: admin@fundtracker.gov.in / admin123
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               <Link
                 to="/login"
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-primary hover:text-primary font-medium"
               >
                 Department Login
               </Link>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               <Link
                 to="/"
-                className="text-gray-500 hover:text-gray-700"
+                className="text-textMuted hover:text-textPrimary"
               >
                 ← Back to Public Dashboard
               </Link>
@@ -133,7 +141,7 @@ const AdminLogin = () => {
           </div>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

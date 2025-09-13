@@ -10,6 +10,14 @@ import {
 } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
 import { formatCurrency, formatDate } from '../../utils/helpers';
+import { motion } from 'framer-motion';
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 20 },
+  transition: { duration: 0.5, ease: 'easeOut' }
+};
 
 const PublicDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -47,7 +55,7 @@ const PublicDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -55,15 +63,15 @@ const PublicDashboard = () => {
   const { overview, categoryBreakdown, recentTransactions, departmentSpending } = dashboardData || {};
 
   return (
-    <div className="space-y-8">
+    <motion.div className="space-y-8" initial="initial" animate="animate" exit="exit" variants={fadeUp}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-8 text-textPrimary">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">
               Transparent Fund Tracking Platform
             </h1>
-            <p className="text-blue-100 text-lg">
+            <p className="text-textMuted text-lg">
               Real-time visibility into government budget allocation and spending
             </p>
           </div>
@@ -71,7 +79,7 @@ const PublicDashboard = () => {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              className="bg-white text-gray-900 px-4 py-2 rounded-md border-0 focus:ring-2 focus:ring-blue-300"
+              className="bg-surface text-textPrimary px-4 py-2 rounded-md border-0 focus:ring-2 focus:ring-primary"
             >
               <option value="">All Years</option>
               {financialYears.map(year => (
@@ -84,87 +92,87 @@ const PublicDashboard = () => {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-success/20 rounded-lg">
+              <CurrencyDollarIcon className="w-6 h-6 text-success" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Budget</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-textMuted">Total Budget</p>
+              <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalAllocated || 0)}
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <ArrowTrendingUpIcon className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-primary/20 rounded-lg">
+              <ArrowTrendingUpIcon className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Spent</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-textMuted">Total Spent</p>
+              <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalSpent || 0)}
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <ChartBarIcon className="w-6 h-6 text-yellow-600" />
+            <div className="p-2 bg-accent/20 rounded-lg">
+              <ChartBarIcon className="w-6 h-6 text-accent" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Remaining</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-textMuted">Remaining</p>
+              <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalRemaining || 0)}
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <BuildingOfficeIcon className="w-6 h-6 text-purple-600" />
+            <div className="p-2 bg-secondary/20 rounded-lg">
+              <BuildingOfficeIcon className="w-6 h-6 text-secondary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Budgets</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-textMuted">Active Budgets</p>
+              <p className="text-2xl font-bold text-textPrimary">
                 {overview?.totalBudgets || 0}
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Category Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget by Category</h3>
+      <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8" variants={fadeUp}>
+        <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Budget by Category</h3>
           <div className="space-y-4">
             {categoryBreakdown?.map((category, index) => {
               const utilizationRate = category.utilizationRate || 0;
               return (
                 <div key={category.category} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700 capitalize">
+                    <span className="text-sm font-medium text-textPrimary capitalize">
                       {category.category}
                     </span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-textMuted">
                       {formatCurrency(category.totalBudget)}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-border rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(utilizationRate, 100)}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-textMuted">
                     <span>Spent: {formatCurrency(category.totalSpent)}</span>
                     <span>{utilizationRate.toFixed(1)}% utilized</span>
                   </div>
@@ -174,28 +182,28 @@ const PublicDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Spending Departments</h3>
+        <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Top Spending Departments</h3>
           <div className="space-y-4">
             {departmentSpending?.slice(0, 5).map((dept, index) => (
               <div key={dept._id} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-gray-600">
+                  <div className="w-8 h-8 bg-surface rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-textMuted">
                       {index + 1}
                     </span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-textPrimary">
                       {dept.departmentName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-textMuted">
                       {dept.departmentCode} • {dept.transactionCount} transactions
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-textPrimary">
                     {formatCurrency(dept.totalSpent)}
                   </p>
                 </div>
@@ -203,74 +211,74 @@ const PublicDashboard = () => {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Recent Transactions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <motion.div className="bg-surface rounded-lg shadow-sm border border-border" variants={fadeUp}>
+        <div className="px-6 py-4 border-b border-border">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+            <h3 className="text-lg font-semibold text-textPrimary">Recent Transactions</h3>
             <Link
               to="/transactions"
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-primary hover:text-primary text-sm font-medium"
             >
               View All →
             </Link>
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-surface">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                   Transaction
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                   Department
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-surface divide-y divide-border">
               {recentTransactions?.map((transaction) => (
-                <tr key={transaction._id} className="hover:bg-gray-50">
+                <tr key={transaction._id} className="hover:bg-surface">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-textPrimary">
                         {transaction.transactionId}
                       </div>
-                      <div className="text-sm text-gray-500 truncate max-w-xs">
+                      <div className="text-sm text-textMuted truncate max-w-xs">
                         {transaction.description}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
+                    <div className="text-sm text-textPrimary">
                       {transaction.departmentId?.departmentName}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-textMuted">
                       {transaction.departmentId?.departmentCode}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-textPrimary">
                     {formatCurrency(transaction.amount)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-textMuted">
                     {formatDate(transaction.approvedAt)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       transaction.status === 'completed'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'bg-success/20 text-success'
+                        : 'bg-primary/20 text-primary'
                     }`}>
                       {transaction.status}
                     </span>
@@ -280,47 +288,47 @@ const PublicDashboard = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Explore More</h3>
+      <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+        <h3 className="text-lg font-semibold text-textPrimary mb-4">Explore More</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/budgets"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+            className="flex items-center p-4 border border-border rounded-lg hover:border-primary hover:bg-surface transition-colors"
           >
-            <CurrencyDollarIcon className="w-8 h-8 text-blue-600" />
+            <CurrencyDollarIcon className="w-8 h-8 text-primary" />
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">View All Budgets</p>
-              <p className="text-sm text-gray-500">Browse budget allocations</p>
+              <p className="text-sm font-medium text-textPrimary">View All Budgets</p>
+              <p className="text-sm text-textMuted">Browse budget allocations</p>
             </div>
           </Link>
-          
+
           <Link
             to="/transactions"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
+            className="flex items-center p-4 border border-border rounded-lg hover:border-success hover:bg-surface transition-colors"
           >
-            <DocumentTextIcon className="w-8 h-8 text-green-600" />
+            <DocumentTextIcon className="w-8 h-8 text-success" />
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">View Transactions</p>
-              <p className="text-sm text-gray-500">Track all expenses</p>
+              <p className="text-sm font-medium text-textPrimary">View Transactions</p>
+              <p className="text-sm text-textMuted">Track all expenses</p>
             </div>
           </Link>
-          
+
           <Link
             to="/login"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors"
+            className="flex items-center p-4 border border-border rounded-lg hover:border-secondary hover:bg-surface transition-colors"
           >
-            <BuildingOfficeIcon className="w-8 h-8 text-purple-600" />
+            <BuildingOfficeIcon className="w-8 h-8 text-secondary" />
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Department Login</p>
-              <p className="text-sm text-gray-500">Access your dashboard</p>
+              <p className="text-sm font-medium text-textPrimary">Department Login</p>
+              <p className="text-sm text-textMuted">Access your dashboard</p>
             </div>
           </Link>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

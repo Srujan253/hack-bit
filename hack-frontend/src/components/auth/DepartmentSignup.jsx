@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { authAPI } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -27,18 +28,23 @@ const DepartmentSignup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 bg-green-600 rounded-lg flex items-center justify-center">
-            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto h-12 w-12 bg-accent rounded-lg flex items-center justify-center">
+            <svg className="h-6 w-6 text-textPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-textPrimary">
             Department Registration
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-textMuted">
             Register your department with Aadhaar verification
           </p>
         </div>
@@ -46,7 +52,7 @@ const DepartmentSignup = () => {
         <div className="mt-8 space-y-6">
           <form className="space-y-6" onSubmit={handleSubmit(handleSignup)}>
               <div>
-                <label htmlFor="aadhaarNumber" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="aadhaarNumber" className="block text-sm font-medium text-textPrimary">
                   Aadhaar Number
                 </label>
                 <input
@@ -58,17 +64,17 @@ const DepartmentSignup = () => {
                     }
                   })}
                   type="text"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Enter 12-digit Aadhaar number"
                   maxLength="12"
                 />
                 {errors.aadhaarNumber && (
-                  <p className="mt-1 text-sm text-red-600">{errors.aadhaarNumber.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.aadhaarNumber.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-textPrimary">
                   Email Address
                 </label>
                 <input
@@ -80,16 +86,16 @@ const DepartmentSignup = () => {
                     }
                   })}
                   type="email"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Enter email address"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.email.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="departmentName" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="departmentName" className="block text-sm font-medium text-textPrimary">
                   Department Name
                 </label>
                 <input
@@ -101,16 +107,16 @@ const DepartmentSignup = () => {
                     }
                   })}
                   type="text"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="e.g., Public Works Department"
                 />
                 {errors.departmentName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.departmentName.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.departmentName.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="departmentCode" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="departmentCode" className="block text-sm font-medium text-textPrimary">
                   Department Code
                 </label>
                 <input
@@ -122,18 +128,18 @@ const DepartmentSignup = () => {
                     }
                   })}
                   type="text"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="e.g., PWD, HEALTH, EDU"
                   maxLength="6"
                   style={{ textTransform: 'uppercase' }}
                 />
                 {errors.departmentCode && (
-                  <p className="mt-1 text-sm text-red-600">{errors.departmentCode.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.departmentCode.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-textPrimary">
                   Password
                 </label>
                 <input
@@ -145,16 +151,16 @@ const DepartmentSignup = () => {
                     }
                   })}
                   type="password"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Enter password"
                 />
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.password.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-textPrimary">
                   Confirm Password
                 </label>
                 <input
@@ -163,37 +169,39 @@ const DepartmentSignup = () => {
                     validate: value => value === password || 'Passwords do not match'
                   })}
                   type="password"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Confirm password"
                 />
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                  <p className="mt-1 text-sm text-error">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-textPrimary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
               >
                 {loading ? 'Processing...' : 'Register Department'}
-              </button>
+              </motion.button>
             </form>
 
           <div className="text-center space-y-2">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               Already registered?{' '}
               <Link
                 to="/login"
-                className="text-green-600 hover:text-green-500 font-medium"
+                className="text-secondary hover:text-primary font-medium"
               >
                 Login here
               </Link>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               <Link
                 to="/"
-                className="text-gray-500 hover:text-gray-700"
+                className="text-border hover:text-textPrimary"
               >
                 ← Back to Public Dashboard
               </Link>
@@ -201,7 +209,7 @@ const DepartmentSignup = () => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

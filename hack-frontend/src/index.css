@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@theme {
+  --color-background: #0F172A;  /* Deep Navy */
+  --color-surface: #1E293B;     /* Card/Surface */
+  --color-primary: #6366F1;     /* Indigo */
+  --color-secondary: #06B6D4;   /* Cyan */
+  --color-accent: #F59E0B;      /* Amber */
+  --color-success: #22C55E;     /* Green */
+  --color-error: #EF4444;       /* Red */
+  --color-textPrimary: #F1F5F9; /* Soft White */
+  --color-textMuted: #94A3B8;   /* Muted Slate Gray */
+  --color-border: #334155;      /* Subtle Divider */
+}

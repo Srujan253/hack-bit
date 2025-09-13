@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { authAPI } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
@@ -28,18 +29,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-lg flex items-center justify-center">
+            <svg className="h-6 w-6 text-textPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-textPrimary">
             Department Login
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-textMuted">
             Login with your Aadhaar number and password
           </p>
         </div>
@@ -47,7 +53,7 @@ const Login = () => {
         <div className="mt-8 space-y-6">
           <form className="space-y-6" onSubmit={handleSubmit(handleLogin)}>
             <div>
-              <label htmlFor="aadhaarNumber" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="aadhaarNumber" className="block text-sm font-medium text-textPrimary">
                 Aadhaar Number
               </label>
               <input
@@ -59,17 +65,17 @@ const Login = () => {
                   }
                 })}
                 type="text"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Enter 12-digit Aadhaar number"
                 maxLength="12"
               />
               {errors.aadhaarNumber && (
-                <p className="mt-1 text-sm text-red-600">{errors.aadhaarNumber.message}</p>
+                <p className="mt-1 text-sm text-error">{errors.aadhaarNumber.message}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-textPrimary">
                 Password
               </label>
               <input
@@ -77,43 +83,45 @@ const Login = () => {
                   required: 'Password is required'
                 })}
                 type="password"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Enter password"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-error">{errors.password.message}</p>
               )}
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-textPrimary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
             >
               {loading ? 'Logging in...' : 'Login'}
-            </button>
+            </motion.button>
           </form>
 
           <div className="text-center space-y-2">
             <Link
               to="/admin/login"
-              className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+              className="text-primary hover:text-primary text-sm font-medium"
             >
               Admin Login
             </Link>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               New department?{' '}
               <Link
                 to="/department/signup"
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-primary hover:text-primary font-medium"
               >
                 Register here
               </Link>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-textMuted">
               <Link
                 to="/"
-                className="text-gray-500 hover:text-gray-700"
+                className="text-textMuted hover:text-textPrimary"
               >
                 ← Back to Public Dashboard
               </Link>
@@ -121,7 +129,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

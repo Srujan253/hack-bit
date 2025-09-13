@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   CurrencyDollarIcon, 
   DocumentTextIcon, 
@@ -134,7 +135,12 @@ const AdminDashboard = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
@@ -149,9 +155,14 @@ const AdminDashboard = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <DocumentTextIcon className="w-6 h-6 text-green-600" />
@@ -166,9 +177,14 @@ const AdminDashboard = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <ClockIcon className="w-6 h-6 text-yellow-600" />
@@ -181,9 +197,14 @@ const AdminDashboard = () => {
               <p className="text-sm text-gray-500">Awaiting review</p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-orange-100 rounded-lg">
               <UserGroupIcon className="w-6 h-6 text-orange-600" />
@@ -196,13 +217,18 @@ const AdminDashboard = () => {
               <p className="text-sm text-gray-500">Department signups</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pending Department Approvals */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">Pending Department Approvals</h3>
@@ -245,10 +271,15 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Pending Transactions */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <motion.div
+          className="bg-white rounded-lg shadow-sm border border-gray-200"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">Pending Transactions</h3>
@@ -294,11 +325,16 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Transaction Status Overview */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <motion.div
+        className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+      >
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Transaction Status Overview</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
@@ -326,10 +362,15 @@ const AdminDashboard = () => {
             <p className="text-sm text-gray-600">Rejected</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <motion.div
+        className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+      >
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
@@ -342,7 +383,7 @@ const AdminDashboard = () => {
               <p className="text-sm text-gray-500">Add new budget allocation</p>
             </div>
           </Link>
-          
+
           <Link
             to="/admin/transactions"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
@@ -353,7 +394,7 @@ const AdminDashboard = () => {
               <p className="text-sm text-gray-500">Approve pending requests</p>
             </div>
           </Link>
-          
+
           <Link
             to="/admin/approvals"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
@@ -365,7 +406,7 @@ const AdminDashboard = () => {
             </div>
           </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
