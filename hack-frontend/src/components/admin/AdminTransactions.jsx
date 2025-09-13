@@ -1,9 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Check, X, Search } from 'lucide-react';
 import { transactionAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
+import GradientHeader from '../common/GradientHeader';
+import ActionButton from '../common/Button';
+import Card from '../common/Card';
+import Icon from '../common/Icon';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const pageTransition = {
+  type: 'tween',
+  ease: 'anticipate',
+  duration: 0.5
+};
 
 const AdminTransactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -58,114 +74,136 @@ const AdminTransactions = () => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          className="bg-surface rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-border"
+        >
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">
             Review Transaction: {selectedTransaction?.transactionId}
           </h3>
-          
-          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+
+          <div className="mb-4 p-4 bg-surface/50 rounded-lg border border-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium">Amount:</span> {formatCurrency(selectedTransaction?.amount)}
+                <span className="font-medium text-textPrimary">Amount:</span>
+                <br />
+                {formatCurrency(selectedTransaction.amount)}
               </div>
               <div>
-                <span className="font-medium">Department:</span> {selectedTransaction?.departmentId?.departmentName}
+                <span className="font-medium text-textPrimary">Vendor:</span>
+                <br />
+                {selectedTransaction.vendorName}
               </div>
               <div>
-                <span className="font-medium">Category:</span> {selectedTransaction?.category}
+                <span className="font-medium text-textPrimary">Category:</span>
+                <br />
+                {selectedTransaction.category}
               </div>
               <div>
-                <span className="font-medium">Priority:</span> {selectedTransaction?.priority}
+                <span className="font-medium text-textPrimary">Priority:</span>
+                <br />
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(selectedTransaction.priority)}`}>
+                  {selectedTransaction.priority}
+                </span>
+              </div>
+              <div>
+                <span className="font-medium text-textPrimary">Requested:</span>
+                <br />
+                {formatDate(selectedTransaction.requestedAt)}
+              </div>
+              <div>
+                <span className="font-medium text-textPrimary">Department:</span>
+                <br />
+                {selectedTransaction.departmentId?.departmentName || selectedTransaction.departmentName}
               </div>
             </div>
-            <div className="mt-2">
-              <span className="font-medium">Description:</span> {selectedTransaction?.description}
-            </div>
-            <div className="mt-2">
-              <span className="font-medium">Vendor:</span> {selectedTransaction?.vendorName}
-            </div>
+            {selectedTransaction.description && (
+              <div className="mt-4">
+                <span className="font-medium text-textPrimary">Description:</span>
+                <br />
+                <p className="text-textMuted mt-1">{selectedTransaction.description}</p>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Action</label>
+              <label className="block text-sm font-medium text-textPrimary mb-2">Action</label>
               <select
                 value={action}
                 onChange={(e) => setAction(e.target.value)}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-textPrimary focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 <option value="approve">Approve</option>
                 <option value="reject">Reject</option>
               </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">Comments</label>
+              <label className="block text-sm font-medium text-textPrimary mb-2">Comments (Optional)</label>
               <textarea
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
-                placeholder={action === 'approve' ? 'Optional approval comments' : 'Please provide reason for rejection'}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                rows="3"
+                rows={3}
+                className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-textPrimary focus:ring-2 focus:ring-primary focus:outline-none"
+                placeholder="Add any comments..."
               />
             </div>
-            
-            <div className="flex space-x-3 pt-4">
-              <button
+
+            <div className="flex space-x-3">
+              <ActionButton type="submit" variant="success" disabled={submitting}>
+                {submitting ? 'Processing...' : `${action.charAt(0).toUpperCase() + action.slice(1)} Transaction`}
+              </ActionButton>
+              <ActionButton
                 type="button"
-                onClick={() => {
-                  setShowReviewModal(false);
-                  setSelectedTransaction(null);
-                }}
-                className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                variant="secondary"
+                onClick={() => setShowReviewModal(false)}
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className={`flex-1 px-4 py-2 text-white rounded-md disabled:opacity-50 ${
-                  action === 'approve' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-                }`}
-              >
-                {submitting ? 'Processing...' : `${action === 'approve' ? 'Approve' : 'Reject'} Transaction`}
-              </button>
+              </ActionButton>
             </div>
           </form>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
-          <p className="text-gray-600">Review and approve department expense requests</p>
-        </div>
-      </div>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="space-y-6 p-6"
+    >
+      <GradientHeader title="Transaction Management" subtitle="Review and manage department transactions" />
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Icon as={Search} size={20} color="text-textMuted" className="absolute left-3 top-1/2 transform -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search transactions..."
               value={filters.search}
               onChange={(e) => setFilters({...filters, search: e.target.value})}
-              className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="pl-10 w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-textPrimary"
             />
           </div>
-          
+
           <select
             value={filters.status}
             onChange={(e) => setFilters({...filters, status: e.target.value})}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-textPrimary"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -173,11 +211,11 @@ const AdminTransactions = () => {
             <option value="rejected">Rejected</option>
             <option value="completed">Completed</option>
           </select>
-          
+
           <select
             value={filters.category}
             onChange={(e) => setFilters({...filters, category: e.target.value})}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-textPrimary"
           >
             <option value="">All Categories</option>
             <option value="equipment">Equipment</option>
@@ -189,11 +227,11 @@ const AdminTransactions = () => {
             <option value="utilities">Utilities</option>
             <option value="other">Other</option>
           </select>
-          
+
           <select
             value={filters.priority}
             onChange={(e) => setFilters({...filters, priority: e.target.value})}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-textPrimary"
           >
             <option value="">All Priorities</option>
             <option value="low">Low</option>
@@ -202,77 +240,77 @@ const AdminTransactions = () => {
             <option value="urgent">Urgent</option>
           </select>
         </div>
-      </div>
+      </Card>
 
       {/* Transactions Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <Card>
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-textMuted">
             No transactions found matching your criteria
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-backgroundSecondary">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Transaction
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Department
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Priority
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-textMuted uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-background divide-y divide-border">
                 {transactions.map((transaction, index) => (
                   <motion.tr
                     key={transaction._id}
-                    className="hover:bg-gray-50"
+                    className="hover:bg-backgroundSecondary"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
                     <td className="px-6 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{transaction.transactionId}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs" title={transaction.description}>
+                        <div className="text-sm font-medium text-textPrimary">{transaction.transactionId}</div>
+                        <div className="text-sm text-textMuted truncate max-w-xs" title={transaction.description}>
                           {transaction.description}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-textMuted">
                           Vendor: {transaction.vendorName}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{transaction.departmentId?.departmentName}</div>
-                      <div className="text-sm text-gray-500">{transaction.departmentId?.departmentCode}</div>
+                      <div className="text-sm text-textPrimary">{transaction.departmentId?.departmentName}</div>
+                      <div className="text-sm text-textMuted">{transaction.departmentId?.departmentCode}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-textPrimary">
                       {formatCurrency(transaction.amount)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-textMuted capitalize">
                       {transaction.category}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -280,7 +318,7 @@ const AdminTransactions = () => {
                         {transaction.priority}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-textMuted">
                       {formatDate(transaction.requestedAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -291,32 +329,35 @@ const AdminTransactions = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {transaction.status === 'pending' ? (
                         <div className="flex space-x-2">
-                          <button
+                          <ActionButton
                             onClick={() => handleReview(transaction._id, 'approve')}
-                            className="text-green-600 hover:text-green-900"
+                            variant="success"
+                            size="sm"
                             title="Quick Approve"
                           >
-                            <CheckIcon className="w-4 h-4" />
-                          </button>
-                          <button
+                            <Icon as={Check} size={16} />
+                          </ActionButton>
+                          <ActionButton
                             onClick={() => {
                               setSelectedTransaction(transaction);
                               setShowReviewModal(true);
                             }}
-                            className="text-blue-600 hover:text-blue-900"
+                            variant="primary"
+                            size="sm"
                           >
                             Review
-                          </button>
-                          <button
+                          </ActionButton>
+                          <ActionButton
                             onClick={() => handleReview(transaction._id, 'reject', 'Rejected by admin')}
-                            className="text-red-600 hover:text-red-900"
+                            variant="danger"
+                            size="sm"
                             title="Quick Reject"
                           >
-                            <XMarkIcon className="w-4 h-4" />
-                          </button>
+                            <Icon as={X} size={16} />
+                          </ActionButton>
                         </div>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-textMuted">-</span>
                       )}
                     </td>
                   </motion.tr>
@@ -325,10 +366,10 @@ const AdminTransactions = () => {
             </table>
           </div>
         )}
-      </div>
+      </Card>
 
       {showReviewModal && <ReviewModal />}
-    </div>
+    </motion.div>
   );
 };
 

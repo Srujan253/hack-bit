@@ -3,17 +3,31 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
-  CurrencyDollarIcon,
-  DocumentTextIcon,
-  UserGroupIcon,
-  ClockIcon,
-} from '@heroicons/react/24/outline';
+  DollarSign,
+  FileText,
+  Users,
+  Clock,
+} from 'lucide-react';
 import { budgetAPI, transactionAPI, authAPI } from '../../services/api';
 import { formatCurrency, formatDate, getPriorityColor } from '../../utils/helpers';
 import StatCard from '../common/StatCard';
 import GradientHeader from '../common/GradientHeader';
 import ActionButton from '../common/Button';
 import InteractiveTable from '../common/InteractiveTable';
+import Card from '../common/Card';
+import Icon from '../common/Icon';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const pageTransition = {
+  type: 'tween',
+  ease: 'anticipate',
+  duration: 0.5
+};
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -33,7 +47,7 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch pending approvals separately to handle errors better
       let pendingApprovalsData = { data: [] };
       let budgetStats = { data: null };
@@ -67,179 +81,117 @@ const AdminDashboard = () => {
       }
 
       try {
-        pendingTransactionsData = await transactionAPI.getPendingTransactions({ limit: 5 });
+        pendingTransactionsData = await transactionAPI.getTransactions({ status: 'pending', limit: 5 });
+        setRecentTransactions(pendingTransactionsData.data.transactions || []);
       } catch (error) {
-        console.error('Error fetching pending transactions:', error);
+        console.error('Error fetching recent transactions:', error);
       }
 
       setStats({
         budgets: budgetStats.data,
         transactions: transactionStats.data,
-        pendingApprovals: pendingApprovalsData.data?.data ? pendingApprovalsData.data.data.length : 0,
-        pendingTransactions: pendingTransactionsData.data ? pendingTransactionsData.data.length : 0
+        pendingApprovals: Array.isArray(pendingApprovalsData.data.data) ? pendingApprovalsData.data.data.length : 0,
+        pendingTransactions: pendingTransactionsData.data.transactions?.length || 0
       });
 
-      setPendingApprovals(Array.isArray(pendingApprovalsData.data?.data) ? pendingApprovalsData.data.data : []);
-      setRecentTransactions(Array.isArray(pendingTransactionsData.data) ? pendingTransactionsData.data : []);
+      setPendingApprovals(Array.isArray(pendingApprovalsData.data.data) ? pendingApprovalsData.data.data : []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      setPendingApprovals([]);
-      setRecentTransactions([]);
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDepartmentApproval = async (userId, action) => {
-    try {
-      await authAPI.approveDepartment(userId, action, action === 'approve' ? 'Approved by admin' : 'Rejected by admin');
-      toast.success(`Department ${action}d successfully`);
-      fetchDashboardData(); // Refresh the data
-    } catch (error) {
-      toast.error(error.response?.data?.message || `Failed to ${action} department`);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+      <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="min-h-screen bg-background p-6"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-32 bg-surface rounded-xl mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-32 bg-surface rounded-xl"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
     );
   }
 
-  const pageVariants = {
-    initial: { opacity: 0, x: 50 },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: -50 },
-  };
-
-  const pageTransition = {
-    type: 'tween',
-    ease: 'anticipate',
-    duration: 0.5,
-  };
-
   return (
     <motion.div
-      className="space-y-8 px-4"
       initial="initial"
       animate="in"
       exit="out"
       variants={pageVariants}
       transition={pageTransition}
+      className="min-h-screen bg-background p-6"
     >
-      <GradientHeader
-        title="Admin Dashboard"
-        subtitle="Manage budgets, approve transactions, and oversee the platform"
-        actions={
-          <>
-            <Link to="/admin/budgets">
-              <ActionButton variant="primary" size="md">Manage Budgets</ActionButton>
-            </Link>
-            <Link to="/admin/approvals">
-              <ActionButton variant="danger" size="md">Pending Approvals</ActionButton>
-            </Link>
-          </>
-        }
-      />
+      <div className="max-w-7xl mx-auto space-y-6">
+        <GradientHeader
+          title="Admin Dashboard"
+          subtitle="Manage budgets, transactions, and department approvals"
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={CurrencyDollarIcon}
-          title="Total Budgets"
-          value={stats.budgets?.totalBudgets || 0}
-          subtitle={`${formatCurrency(stats.budgets?.totalAmount || 0)} allocated`}
-          color="blue"
-        />
-        <StatCard
-          icon={DocumentTextIcon}
-          title="Total Transactions"
-          value={stats.transactions?.totalTransactions || 0}
-          subtitle={`${formatCurrency(stats.transactions?.totalAmount || 0)} processed`}
-          color="emerald"
-        />
-        <StatCard
-          icon={ClockIcon}
-          title="Pending Transactions"
-          value={stats.pendingTransactions}
-          subtitle="Awaiting review"
-          color="gold"
-        />
-        <StatCard
-          icon={UserGroupIcon}
-          title="Pending Approvals"
-          value={stats.pendingApprovals}
-          subtitle="Department signups"
-          color="violet"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-          <h3 className="text-lg font-semibold text-textPrimary mb-4">Pending Department Approvals</h3>
-          {pendingApprovals.length === 0 ? (
-            <p className="text-textMuted text-center py-4">No pending approvals</p>
-          ) : (
-            <div className="space-y-4">
-              {pendingApprovals.slice(0, 3).map((approval) => (
-                <motion.div
-                  key={approval._id}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-4 border border-border rounded-xl cursor-pointer"
-                >
-                  <div>
-                    <h4 className="font-medium text-textPrimary">{approval.departmentName}</h4>
-                    <p className="text-sm text-textMuted">{approval.departmentCode} • {approval.email}</p>
-                    <p className="text-xs text-textMuted">Aadhaar: {approval.aadhaarNumber}</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <ActionButton
-                      size="sm"
-                      variant="success"
-                      onClick={() => handleDepartmentApproval(approval._id, 'approve')}
-                    >
-                      Approve
-                    </ActionButton>
-                    <ActionButton
-                      size="sm"
-                      variant="danger"
-                      onClick={() => handleDepartmentApproval(approval._id, 'reject')}
-                    >
-                      Reject
-                    </ActionButton>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            icon={DollarSign}
+            title="Total Budgets"
+            value={stats.budgets?.totalBudgets || 0}
+            subtitle="Active budgets"
+            color="emerald"
+          />
+          <StatCard
+            icon={FileText}
+            title="Pending Transactions"
+            value={stats.pendingTransactions}
+            subtitle="Awaiting review"
+            color="blue"
+          />
+          <StatCard
+            icon={Users}
+            title="Pending Approvals"
+            value={stats.pendingApprovals}
+            subtitle="Department requests"
+            color="violet"
+          />
+          <StatCard
+            icon={Clock}
+            title="Total Spent"
+            value={formatCurrency(stats.transactions?.totalSpent || 0)}
+            subtitle="This month"
+            color="gold"
+          />
         </div>
 
-        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-          <h3 className="text-lg font-semibold text-textPrimary mb-4">Pending Transactions</h3>
-          {recentTransactions.length === 0 ? (
-            <p className="text-textMuted text-center py-4">No pending transactions</p>
-          ) : (
-            <div className="space-y-4">
-              {recentTransactions.map((transaction) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <h3 className="text-lg font-semibold text-textPrimary mb-4 flex items-center">
+              <Icon as={Clock} size={20} className="mr-2" />
+              Recent Pending Transactions
+            </h3>
+            <div className="space-y-3">
+              {recentTransactions.slice(0, 5).map((transaction, index) => (
                 <motion.div
                   key={transaction._id}
-                  whileHover={{ scale: 1.02 }}
-                  className="flex items-center justify-between p-4 border border-border rounded-xl cursor-pointer"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-3 bg-surface/50 rounded-lg border border-border hover:bg-surface/70 transition-colors"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-medium text-textPrimary">{transaction.transactionId}</h4>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(transaction.priority)}`}>
-                        {transaction.priority}
-                      </span>
-                    </div>
-                    <p className="text-sm text-textMuted truncate">{transaction.description}</p>
-                    <div className="flex items-center space-x-4 text-xs text-textMuted mt-1">
-                      <span>{transaction.departmentId?.departmentName}</span>
-                      <span>{formatCurrency(transaction.amount)}</span>
-                      <span>{formatDate(transaction.requestedAt)}</span>
-                    </div>
+                    <p className="text-sm font-medium text-textPrimary">{transaction.transactionId}</p>
+                    <p className="text-xs text-textMuted">{transaction.vendorName}</p>
+                    <p className="text-xs text-textMuted">{formatDate(transaction.requestedAt)}</p>
                   </div>
                   <div className="flex space-x-2">
                     <ActionButton size="sm" variant="success">Approve</ActionButton>
@@ -247,52 +199,86 @@ const AdminDashboard = () => {
                   </div>
                 </motion.div>
               ))}
+              {recentTransactions.length === 0 && (
+                <p className="text-textMuted text-center py-4">No pending transactions</p>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </Card>
 
-      <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-        <h3 className="text-lg font-semibold text-textPrimary mb-4">Transaction Status Overview</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-gold">{stats.transactions?.pendingCount || 0}</p>
-            <p className="text-sm text-textMuted">Pending</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-success">{stats.transactions?.approvedCount || 0}</p>
-            <p className="text-sm text-textMuted">Approved</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-blue-500">{stats.transactions?.completedCount || 0}</p>
-            <p className="text-sm text-textMuted">Completed</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-danger">{stats.transactions?.rejectedCount || 0}</p>
-            <p className="text-sm text-textMuted">Rejected</p>
-          </div>
+          <Card>
+            <h3 className="text-lg font-semibold text-textPrimary mb-4 flex items-center">
+              <Icon as={Users} size={20} className="mr-2" />
+              Pending Department Approvals
+            </h3>
+            <div className="space-y-3">
+              {pendingApprovals.slice(0, 5).map((approval, index) => (
+                <motion.div
+                  key={approval._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between p-3 bg-surface/50 rounded-lg border border-border hover:bg-surface/70 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-textPrimary">{approval.name}</p>
+                    <p className="text-xs text-textMuted">{approval.email}</p>
+                    <p className="text-xs text-textMuted">{approval.department}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <ActionButton size="sm" variant="success">Approve</ActionButton>
+                    <ActionButton size="sm" variant="danger">Reject</ActionButton>
+                  </div>
+                </motion.div>
+              ))}
+              {pendingApprovals.length === 0 && (
+                <p className="text-textMuted text-center py-4">No pending approvals</p>
+              )}
+            </div>
+          </Card>
         </div>
-      </div>
 
-      <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-        <h3 className="text-lg font-semibold text-textPrimary mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to="/admin/budgets">
-            <ActionButton variant="blue" size="md" icon={CurrencyDollarIcon}>
-              Create Budget
-            </ActionButton>
-          </Link>
-          <Link to="/admin/transactions">
-            <ActionButton variant="emerald" size="md" icon={DocumentTextIcon}>
-              Review Transactions
-            </ActionButton>
-          </Link>
-          <Link to="/admin/approvals">
-            <ActionButton variant="violet" size="md" icon={UserGroupIcon}>
-              Department Approvals
-            </ActionButton>
-          </Link>
-        </div>
+        <Card>
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Transaction Status Overview</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="p-4 bg-surface/50 rounded-lg border border-border">
+              <p className="text-2xl font-bold text-gold">{stats.transactions?.pendingCount || 0}</p>
+              <p className="text-sm text-textMuted">Pending</p>
+            </div>
+            <div className="p-4 bg-surface/50 rounded-lg border border-border">
+              <p className="text-2xl font-bold text-success">{stats.transactions?.approvedCount || 0}</p>
+              <p className="text-sm text-textMuted">Approved</p>
+            </div>
+            <div className="p-4 bg-surface/50 rounded-lg border border-border">
+              <p className="text-2xl font-bold text-blue-500">{stats.transactions?.completedCount || 0}</p>
+              <p className="text-sm text-textMuted">Completed</p>
+            </div>
+            <div className="p-4 bg-surface/50 rounded-lg border border-border">
+              <p className="text-2xl font-bold text-danger">{stats.transactions?.rejectedCount || 0}</p>
+              <p className="text-sm text-textMuted">Rejected</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link to="/admin/budgets">
+              <ActionButton variant="emerald" size="md" icon={DollarSign}>
+                Create Budget
+              </ActionButton>
+            </Link>
+            <Link to="/admin/transactions">
+              <ActionButton variant="blue" size="md" icon={FileText}>
+                Review Transactions
+              </ActionButton>
+            </Link>
+            <Link to="/admin/approvals">
+              <ActionButton variant="violet" size="md" icon={Users}>
+                Department Approvals
+              </ActionButton>
+            </Link>
+          </div>
+        </Card>
       </div>
     </motion.div>
   );

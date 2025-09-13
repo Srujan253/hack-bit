@@ -44,9 +44,12 @@ const GradientHeader = ({
           className="mt-4 md:mt-0 flex items-center space-x-4"
         >
           {filterOptions.length > 0 && (
-            <select
+            <motion.select
               value={selectedFilter}
               onChange={(e) => onFilterChange(e.target.value)}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
               className="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg border border-white/20 focus:ring-2 focus:ring-white/50 focus:outline-none"
             >
               {filterOptions.map(option => (
@@ -54,7 +57,7 @@ const GradientHeader = ({
                   {option.label}
                 </option>
               ))}
-            </select>
+            </motion.select>
           )}
 
           {actions && (

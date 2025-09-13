@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { CheckIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { Check, X, Clock } from 'lucide-react';
 import { transactionAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import GradientHeader from '../common/GradientHeader';
+import ActionButton from '../common/Button';
+import Card from '../common/Card';
+import Icon from '../common/Icon';
 
 const AdminApprovals = () => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
@@ -166,103 +170,85 @@ const AdminApprovals = () => {
     );
   };
 
+  const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -50 },
+  };
+
+  const pageTransition = {
+    type: 'tween',
+    ease: 'anticipate',
+    duration: 0.5,
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-8 px-4"
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
     >
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h1 className="text-2xl font-bold text-gray-900">Pending Approvals</h1>
-        <p className="text-gray-600">Review and approve department expense requests</p>
-      </motion.div>
+      <GradientHeader
+        title="Pending Approvals"
+        subtitle="Review and approve department expense requests"
+      />
 
       {/* Stats */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1
-            }
-          }
-        }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {[
-          {
-            icon: <ClockIcon className="w-6 h-6 text-yellow-600" />,
-            bgColor: "bg-yellow-50",
-            label: "Pending Requests",
-            value: pendingApprovals.length
-          },
-          {
-            icon: <CheckIcon className="w-6 h-6 text-blue-600" />,
-            bgColor: "bg-blue-50",
-            label: "Total Amount",
-            value: formatCurrency(pendingApprovals.reduce((sum, t) => sum + t.amount, 0))
-          },
-          {
-            icon: <XMarkIcon className="w-6 h-6 text-red-600" />,
-            bgColor: "bg-red-50",
-            label: "High Priority",
-            value: pendingApprovals.filter(t => t.priority === 'high' || t.priority === 'urgent').length
-          }
-        ].map((stat, index) => (
-          <motion.div
-            key={index}
-            variants={{
-              hidden: { opacity: 0, x: -20 },
-              visible: { opacity: 1, x: 0 }
-            }}
-            className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-          >
-            <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                {stat.icon}
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <div className="flex items-center">
+            <Icon as={Clock} size={24} color="text-yellow-400" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textMuted">Pending Requests</p>
+              <p className="text-2xl font-semibold text-textPrimary">{pendingApprovals.length}</p>
             </div>
-          </motion.div>
-        ))}
-      </motion.div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex items-center">
+            <Icon as={Check} size={24} color="text-emerald-400" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textMuted">Total Amount</p>
+              <p className="text-2xl font-semibold text-textPrimary">{formatCurrency(pendingApprovals.reduce((sum, t) => sum + t.amount, 0))}</p>
+            </div>
+          </div>
+        </Card>
+        <Card>
+          <div className="flex items-center">
+            <Icon as={X} size={24} color="text-red-400" />
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textMuted">High Priority</p>
+              <p className="text-2xl font-semibold text-textPrimary">{pendingApprovals.filter(t => t.priority === 'high' || t.priority === 'urgent').length}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Pending Approvals List */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-sm border border-gray-200"
-      >
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Requests Awaiting Approval</h3>
+      <Card>
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="text-lg font-semibold text-textPrimary">Requests Awaiting Approval</h3>
         </div>
 
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           </div>
         ) : pendingApprovals.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-8 text-center text-gray-500"
+            className="p-8 text-center text-textMuted"
           >
-            <ClockIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Approvals</h3>
+            <Icon as={Clock} size={48} color="text-textMuted" />
+            <h3 className="text-lg font-medium text-textPrimary mb-2">No Pending Approvals</h3>
             <p>All expense requests have been processed.</p>
           </motion.div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-border">
             <AnimatePresence>
               {pendingApprovals.map((transaction, index) => (
                 <motion.div
@@ -271,89 +257,84 @@ const AdminApprovals = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: index * 0.05 }}
-                  className="p-6 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-lg font-medium text-gray-900">{transaction.transactionId}</h4>
-                      <div className="flex items-center space-x-2">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(transaction.priority)}`}>
-                          {transaction.priority}
-                        </span>
-                        <span className="text-lg font-semibold text-gray-900">{formatCurrency(transaction.amount)}</span>
+                  className="p-6 hover:bg-surface/50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-lg font-medium text-textPrimary">{transaction.transactionId}</h4>
+                        <div className="flex items-center space-x-2">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(transaction.priority)}`}>
+                            {transaction.priority}
+                          </span>
+                          <span className="text-lg font-semibold text-textPrimary">{formatCurrency(transaction.amount)}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    <p className="text-gray-600 mb-3">{transaction.description}</p>
+                      <p className="text-textMuted mb-3">{transaction.description}</p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500">
-                      <div>
-                        <span className="font-medium">Department:</span>
-                        <br />
-                        {transaction.departmentId?.departmentName}
-                      </div>
-                      <div>
-                        <span className="font-medium">Category:</span>
-                        <br />
-                        {transaction.category}
-                      </div>
-                      <div>
-                        <span className="font-medium">Vendor:</span>
-                        <br />
-                        {transaction.vendorName}
-                      </div>
-                      <div>
-                        <span className="font-medium">Requested:</span>
-                        <br />
-                        {formatDate(transaction.requestedAt)}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-textMuted">
+                        <div>
+                          <span className="font-medium">Department:</span>
+                          <br />
+                          {transaction.departmentId?.departmentName}
+                        </div>
+                        <div>
+                          <span className="font-medium">Category:</span>
+                          <br />
+                          {transaction.category}
+                        </div>
+                        <div>
+                          <span className="font-medium">Vendor:</span>
+                          <br />
+                          {transaction.vendorName}
+                        </div>
+                        <div>
+                          <span className="font-medium">Requested:</span>
+                          <br />
+                          {formatDate(transaction.requestedAt)}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex space-x-3 mt-4"
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleReview(transaction._id, 'approve')}
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex space-x-3 mt-4"
                   >
-                    <CheckIcon className="w-4 h-4" />
-                    <span>Quick Approve</span>
-                  </motion.button>
+                    <ActionButton
+                      variant="success"
+                      onClick={() => handleReview(transaction._id, 'approve')}
+                      icon={Check}
+                    >
+                      Quick Approve
+                    </ActionButton>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setSelectedTransaction(transaction);
-                      setShowReviewModal(true);
-                    }}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                  >
-                    Review Details
-                  </motion.button>
+                    <ActionButton
+                      variant="secondary"
+                      onClick={() => {
+                        setSelectedTransaction(transaction);
+                        setShowReviewModal(true);
+                      }}
+                    >
+                      Review Details
+                    </ActionButton>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleReview(transaction._id, 'reject', 'Rejected by admin')}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    <XMarkIcon className="w-4 h-4" />
-                    <span>Quick Reject</span>
-                  </motion.button>
+                    <ActionButton
+                      variant="danger"
+                      onClick={() => handleReview(transaction._id, 'reject', 'Rejected by admin')}
+                      icon={X}
+                    >
+                      Quick Reject
+                    </ActionButton>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
+              ))}
             </AnimatePresence>
           </div>
         )}
-      </motion.div>
+      </Card>
 
       <AnimatePresence>
         {showReviewModal && <ReviewModal />}

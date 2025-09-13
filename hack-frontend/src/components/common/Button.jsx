@@ -34,7 +34,7 @@ const ActionButton = React.forwardRef(({
         scale: 1.05,
         boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
       }}
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.95, rotate: 5 }}
       className={clsx(
         'inline-flex items-center justify-center rounded-xl text-white font-semibold',
         'shadow-lg transition-all duration-200',
@@ -46,7 +46,7 @@ const ActionButton = React.forwardRef(({
       )}
       {...props}
     >
-      {Icon && <Icon className="w-5 h-5 mr-2" />}
+      {Icon && <Icon className="w-5 h-5 mr-2 drop-shadow-lg" />}
       {children}
     </motion.button>
   );

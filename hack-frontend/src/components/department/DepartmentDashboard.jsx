@@ -5,6 +5,21 @@ import { transactionAPI, budgetAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
 import { useAuthStore } from '../../store/authStore';
 
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 20 },
+  transition: { duration: 0.5, ease: 'easeOut' }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
 const DepartmentDashboard = () => {
   const { user } = useAuthStore();
   const [stats, setStats] = useState({
@@ -24,7 +39,7 @@ const DepartmentDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch transactions for stats and recent list
       const transactionsResponse = await transactionAPI.getTransactions({ limit: 5 });
       const transactions = transactionsResponse.data.transactions;
@@ -39,15 +54,15 @@ const DepartmentDashboard = () => {
 
       // Fetch budgets allocated to this department
       const budgetsResponse = await budgetAPI.getBudgets();
-      const departmentBudgets = budgetsResponse.data.budgets.filter(budget => 
-        budget.departmentAllocations?.some(alloc => 
+      const departmentBudgets = budgetsResponse.data.budgets.filter(budget =>
+        budget.departmentAllocations?.some(alloc =>
           alloc.departmentId === user.departmentId
         )
       );
       setBudgets(departmentBudgets);
 
       const totalBudget = departmentBudgets.reduce((sum, budget) => {
-        const allocation = budget.departmentAllocations?.find(alloc => 
+        const allocation = budget.departmentAllocations?.find(alloc =>
           alloc.departmentId === user.departmentId
         );
         return sum + (allocation?.allocatedAmount || 0);
@@ -66,110 +81,94 @@ const DepartmentDashboard = () => {
     }
   };
 
-  const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
-    const colorClasses = {
-      blue: 'bg-blue-500 text-blue-600 bg-blue-50',
-      green: 'bg-green-500 text-green-600 bg-green-50',
-      yellow: 'bg-yellow-500 text-yellow-600 bg-yellow-50',
-      red: 'bg-red-500 text-red-600 bg-red-50'
-    };
-
-    return (
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center">
-          <div className={`p-3 rounded-lg ${colorClasses[color].split(' ')[2]}`}>
-            <Icon className={`w-6 h-6 ${colorClasses[color].split(' ')[1]}`} />
-          </div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      <div className="flex items-center justify-center min-h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div className="space-y-6" initial="initial" animate="animate" exit="exit" variants={fadeUp}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Department Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {user?.departmentName}</p>
-      </div>
+      <motion.div
+        className="bg-gradient-to-r from-primary to-secondary rounded-lg p-8 text-textPrimary"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <h1 className="text-3xl font-bold mb-2">Department Dashboard</h1>
+        <p className="text-textMuted text-lg">Welcome back, {user?.departmentName}</p>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <StatCard
-            title="Total Budget Allocated"
-            value={formatCurrency(stats.totalBudget)}
-            icon={CurrencyDollarIcon}
-            color="blue"
-          />
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" variants={staggerContainer} initial="initial" animate="animate">
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+          <div className="flex items-center">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textPrimary">Total Budget Allocated</p>
+              <p className="text-2xl font-bold text-textPrimary">
+                {formatCurrency(stats.totalBudget)}
+              </p>
+            </div>
+          </div>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <StatCard
-            title="Amount Spent"
-            value={formatCurrency(stats.spentAmount)}
-            icon={CheckCircleIcon}
-            color="green"
-          />
+
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircleIcon className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textPrimary">Amount Spent</p>
+              <p className="text-2xl font-bold text-textPrimary">
+                {formatCurrency(stats.spentAmount)}
+              </p>
+            </div>
+          </div>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <StatCard
-            title="Pending Requests"
-            value={stats.pendingRequests}
-            icon={ClockIcon}
-            color="yellow"
-          />
+
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+          <div className="flex items-center">
+            <div className="p-2 bg-yellow-100 rounded-lg">
+              <ClockIcon className="w-6 h-6 text-yellow-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textPrimary">Pending Requests</p>
+              <p className="text-2xl font-bold text-textPrimary">
+                {stats.pendingRequests}
+              </p>
+            </div>
+          </div>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <StatCard
-            title="Approved Requests"
-            value={stats.approvedRequests}
-            icon={DocumentTextIcon}
-            color="green"
-          />
+
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <DocumentTextIcon className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-textPrimary">Approved Requests</p>
+              <p className="text-2xl font-bold text-textPrimary">
+                {stats.approvedRequests}
+              </p>
+            </div>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Budget Overview */}
-      <motion.div
-        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget Allocations</h3>
+      <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+        <h3 className="text-lg font-semibold text-textPrimary mb-4">Budget Allocations</h3>
         {budgets.length === 0 ? (
-          <p className="text-gray-500">No budget allocations found for your department.</p>
+          <p className="text-textMuted">No budget allocations found for your department.</p>
         ) : (
-          <div className="space-y-4">
-            {budgets.map((budget) => {
+          <motion.div className="space-y-4" variants={staggerContainer} initial="initial" animate="animate">
+            {budgets.map((budget, index) => {
               const allocation = budget.departmentAllocations?.find(alloc =>
                 alloc.departmentId === user.departmentId
               );
@@ -177,26 +176,26 @@ const DepartmentDashboard = () => {
               const spentPercentage = allocatedAmount > 0 ? (stats.spentAmount / allocatedAmount) * 100 : 0;
 
               return (
-                <div key={budget._id} className="border border-gray-200 rounded-lg p-4">
+                <motion.div key={budget._id} className="border border-border rounded-lg p-4" variants={fadeUp}>
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h4 className="font-medium text-gray-900">{budget.title}</h4>
-                      <p className="text-sm text-gray-500">{budget.category} • {budget.financialYear}</p>
+                      <h4 className="font-medium text-textPrimary">{budget.title}</h4>
+                      <p className="text-sm text-textMuted">{budget.category} • {budget.financialYear}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">Allocated</p>
-                      <p className="font-semibold text-gray-900">{formatCurrency(allocatedAmount)}</p>
+                      <p className="text-sm text-textMuted">Allocated</p>
+                      <p className="font-semibold text-textPrimary">{formatCurrency(allocatedAmount)}</p>
                     </div>
                   </div>
 
                   <div className="mt-3">
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <div className="flex justify-between text-sm text-textMuted mb-1">
                       <span>Spent: {formatCurrency(stats.spentAmount)}</span>
                       <span>{spentPercentage.toFixed(1)}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-border rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2 rounded-full transition-all duration-300 ${
                           spentPercentage > 90 ? 'bg-red-500' :
                           spentPercentage > 75 ? 'bg-yellow-500' : 'bg-green-500'
                         }`}
@@ -204,85 +203,83 @@ const DepartmentDashboard = () => {
                       ></div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </motion.div>
 
       {/* Recent Transactions */}
-      <motion.div
-        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-          <a href="/department/transactions" className="text-red-600 hover:text-red-700 text-sm font-medium">
-            View All
-          </a>
+      <motion.div className="bg-surface rounded-lg shadow-sm border border-border" variants={fadeUp}>
+        <div className="px-6 py-4 border-b border-border">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-textPrimary">Recent Transactions</h3>
+            <a href="/department/transactions" className="text-primary hover:text-primary text-sm font-medium">
+              View All →
+            </a>
+          </div>
         </div>
 
         {recentTransactions.length === 0 ? (
-          <p className="text-gray-500">No recent transactions found.</p>
+          <div className="p-6 text-center text-textMuted">
+            No recent transactions found.
+          </div>
         ) : (
-          <div className="space-y-3">
-            {recentTransactions.map((transaction) => (
-              <div key={transaction._id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+          <motion.div className="p-6 space-y-3" variants={staggerContainer} initial="initial" animate="animate">
+            {recentTransactions.map((transaction, index) => (
+              <motion.div key={transaction._id} className="flex items-center justify-between p-3 border border-border rounded-lg" variants={fadeUp}>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-gray-900">{transaction.transactionId}</p>
+                    <p className="font-medium text-textPrimary">{transaction.transactionId}</p>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(transaction.status)}`}>
                       {transaction.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">{transaction.description}</p>
+                  <p className="text-sm text-textMuted mt-1">{transaction.description}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-500">{formatDate(transaction.requestedAt)}</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(transaction.amount)}</span>
+                    <span className="text-sm text-textMuted">{formatDate(transaction.requestedAt)}</span>
+                    <span className="font-semibold text-textPrimary">{formatCurrency(transaction.amount)}</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </motion.div>
 
       {/* Quick Actions */}
-      <motion.div
-        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href="/department/transactions/new"
-            className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
-          >
-            <DocumentTextIcon className="w-8 h-8 text-gray-400" />
-            <div className="ml-3">
-              <p className="font-medium text-gray-900">Submit Expense Request</p>
-              <p className="text-sm text-gray-500">Create a new expense request for approval</p>
-            </div>
-          </a>
+      <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
+        <h3 className="text-lg font-semibold text-textPrimary mb-4">Quick Actions</h3>
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-4" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div variants={fadeUp}>
+            <a
+              href="/department/transactions/new"
+              className="flex items-center p-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-surface transition-colors"
+            >
+              <DocumentTextIcon className="w-8 h-8 text-textMuted" />
+              <div className="ml-3">
+                <p className="font-medium text-textPrimary">Submit Expense Request</p>
+                <p className="text-sm text-textMuted">Create a new expense request for approval</p>
+              </div>
+            </a>
+          </motion.div>
 
-          <a
-            href="/department/budgets"
-            className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
-          >
-            <CurrencyDollarIcon className="w-8 h-8 text-gray-400" />
-            <div className="ml-3">
-              <p className="font-medium text-gray-900">View Budget Details</p>
-              <p className="text-sm text-gray-500">Check allocated budgets and spending</p>
-            </div>
-          </a>
-        </div>
+          <motion.div variants={fadeUp}>
+            <a
+              href="/department/budgets"
+              className="flex items-center p-4 border-2 border-dashed border-border rounded-lg hover:border-primary hover:bg-surface transition-colors"
+            >
+              <CurrencyDollarIcon className="w-8 h-8 text-textMuted" />
+              <div className="ml-3">
+                <p className="font-medium text-textPrimary">View Budget Details</p>
+                <p className="text-sm text-textMuted">Check allocated budgets and spending</p>
+              </div>
+            </a>
+          </motion.div>
+        </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

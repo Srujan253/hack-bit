@@ -14,6 +14,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color = 'indigo' }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.05, rotateX: 5, rotateY: 5 }}
+      whileTap={{ scale: 0.95 }}
       className={clsx(
         'bg-surface rounded-xl shadow-lg border border-border p-6 cursor-pointer',
         'transition-shadow duration-300 ease-in-out',
@@ -25,7 +26,7 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color = 'indigo' }) => {
       </div>
       <div className="mt-4">
         <h3 className="text-lg font-semibold text-textPrimary">{title}</h3>
-        <p className="text-3xl font-bold text-white mt-1">{value}</p>
+        <p className="text-3xl font-bold text-textPrimary mt-1">{value}</p>
         {subtitle && <p className="text-sm text-textMuted mt-1">{subtitle}</p>}
       </div>
     </motion.div>
