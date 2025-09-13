@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
   DollarSign,
@@ -100,6 +100,16 @@ const AdminDashboard = () => {
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDepartmentApproval = async (userId, action) => {
+    try {
+      await authAPI.approveDepartment(userId, action, action === 'approve' ? 'Approved by admin' : 'Rejected by admin');
+      toast.success(`Department ${action}d successfully`);
+      fetchDashboardData(); // Refresh the data
+    } catch (error) {
+      toast.error(error.response?.data?.message || `Failed to ${action} department`);
     }
   };
 

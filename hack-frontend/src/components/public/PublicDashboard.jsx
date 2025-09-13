@@ -177,34 +177,86 @@ const PublicDashboard = () => {
       {/* Category Breakdown */}
       <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8" variants={fadeUp}>
         <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
-          <h3 className="text-lg font-semibold text-textPrimary mb-4">Budget by Category</h3>
-          <motion.div className="space-y-4" variants={staggerContainer} initial="initial" animate="animate">
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Budget by Category - Step by Step</h3>
+          <div className="space-y-4">
             {categoryBreakdown?.map((category, index) => {
               const utilizationRate = category.utilizationRate || 0;
+              const allocated = category.totalAllocated || 0;
+              const spent = category.totalSpent || 0;
+              const remaining = category.totalBudget - spent;
+              
               return (
-                <motion.div key={category.category} className="space-y-2" variants={fadeUp}>
+                <div key={category.category} className="space-y-3 p-4 bg-background rounded-lg">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-textPrimary capitalize">
                       {category.category}
                     </span>
                     <span className="text-sm text-textMuted">
-                      {formatCurrency(category.totalBudget)}
+                      Total: {formatCurrency(category.totalBudget)}
                     </span>
                   </div>
+                  
+                  {/* Step-by-step progress */}
+                  <div className="space-y-2">
+                    {/* Step 1: Budget Created */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-textMuted">Budget Created</span>
+                      </div>
+                      <span className="text-textPrimary font-medium">
+                        {formatCurrency(category.totalBudget)}
+                      </span>
+                    </div>
+                    
+                    {/* Step 2: Allocated to Departments */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${allocated > 0 ? 'bg-secondary' : 'bg-border'}`}></div>
+                        <span className="text-textMuted">Allocated to Departments</span>
+                      </div>
+                      <span className="text-textPrimary font-medium">
+                        {formatCurrency(allocated)}
+                      </span>
+                    </div>
+                    
+                    {/* Step 3: Spent by Departments */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${spent > 0 ? 'bg-success' : 'bg-border'}`}></div>
+                        <span className="text-textMuted">Spent by Departments</span>
+                      </div>
+                      <span className="text-success font-medium">
+                        {formatCurrency(spent)}
+                      </span>
+                    </div>
+                    
+                    {/* Step 4: Remaining */}
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${remaining > 0 ? 'bg-accent' : 'bg-error'}`}></div>
+                        <span className="text-textMuted">Remaining</span>
+                      </div>
+                      <span className={`font-medium ${remaining > 0 ? 'text-accent' : 'text-error'}`}>
+                        {formatCurrency(remaining)}
+                      </span>
+                    </div>
+                  </div>
+                  
                   <div className="w-full bg-border rounded-full h-2">
                     <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-primary via-secondary to-success h-2 rounded-full transition-all duration-300"
                       style={{ width: `${Math.min(utilizationRate, 100)}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between text-xs text-textMuted">
-                    <span>Spent: {formatCurrency(category.totalSpent)}</span>
-                    <span>{utilizationRate.toFixed(1)}% utilized</span>
+                    <span>Utilization Progress</span>
+                    <span>{utilizationRate.toFixed(1)}% completed</span>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
 
         <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">

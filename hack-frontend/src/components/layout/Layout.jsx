@@ -8,7 +8,8 @@ import {
   UserGroupIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 import useAuthStore from '../../store/authStore';
 import toast from 'react-hot-toast';
@@ -35,6 +36,7 @@ const Layout = ({ children }) => {
   const adminNavItems = [
     { name: 'Dashboard', href: '/admin', icon: HomeIcon },
     { name: 'Budgets', href: '/admin/budgets', icon: CurrencyDollarIcon },
+    { name: 'Allocate Budget', href: '/admin/allocate-budget', icon: BanknotesIcon },
     { name: 'Transactions', href: '/admin/transactions', icon: DocumentTextIcon },
     { name: 'Approvals', href: '/admin/approvals', icon: UserGroupIcon },
   ];
@@ -43,6 +45,7 @@ const Layout = ({ children }) => {
   const departmentNavItems = [
     { name: 'Dashboard', href: '/department', icon: HomeIcon },
     { name: 'My Budgets', href: '/department/budgets', icon: CurrencyDollarIcon },
+    { name: 'Expense Tracker', href: '/department/expense-tracker', icon: ChartBarIcon },
     { name: 'Transactions', href: '/department/transactions', icon: DocumentTextIcon },
     { name: 'Submit Expense', href: '/department/submit-expense', icon: BanknotesIcon },
   ];

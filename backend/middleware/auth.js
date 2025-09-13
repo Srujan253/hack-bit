@@ -17,9 +17,8 @@ export const verifyToken = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid token. User not found.' });
     }
 
-    if (!user.isApproved) {
-      return res.status(403).json({ message: 'Account not approved yet.' });
-    }
+    // Only check approval for departments accessing protected resources
+    // Admins are always approved, departments can access basic endpoints even if not approved
 
     req.user = user;
     next();
@@ -56,6 +55,11 @@ export const verifyDepartment = async (req, res, next) => {
       return res.status(403).json({ message: 'Department access required.' });
     }
 
+    // Check if department is approved
+    if (!req.user.isApproved) {
+      return res.status(403).json({ message: 'Department not approved yet. Please wait for admin approval.' });
+    }
+
     next();
   } catch (error) {
     res.status(500).json({ message: 'Server error in department verification.' });
@@ -71,6 +75,11 @@ export const verifyAdminOrDepartment = async (req, res, next) => {
 
     if (req.user.role !== 'admin' && req.user.role !== 'department') {
       return res.status(403).json({ message: 'Admin or Department access required.' });
+    }
+
+    // For departments, check if they are approved
+    if (req.user.role === 'department' && !req.user.isApproved) {
+      return res.status(403).json({ message: 'Department not approved yet. Please wait for admin approval.' });
     }
 
     next();

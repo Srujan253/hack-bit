@@ -27,16 +27,8 @@ const DepartmentBudgets = () => {
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      const response = await budgetAPI.getBudgets(filters);
-
-      // Filter budgets that have allocations for this department
-      const departmentBudgets = response.data.budgets.filter(budget =>
-        budget.departmentAllocations?.some(alloc =>
-          alloc.departmentId === user.departmentId
-        )
-      );
-
-      setBudgets(departmentBudgets);
+      const response = await budgetAPI.getDepartmentBudgets(filters);
+      setBudgets(response.data.budgets);
     } catch (error) {
       console.error('Error fetching budgets:', error);
     } finally {
@@ -45,12 +37,10 @@ const DepartmentBudgets = () => {
   };
 
   const BudgetCard = ({ budget }) => {
-    const allocation = budget.departmentAllocations?.find(alloc =>
-      alloc.departmentId === user.departmentId
-    );
-    const allocatedAmount = allocation?.allocatedAmount || 0;
-    const spentAmount = allocation?.spentAmount || 0;
-    const remainingAmount = allocatedAmount - spentAmount;
+    const allocation = budget.myAllocation;
+    const allocatedAmount = allocation?.allocated || 0;
+    const spentAmount = allocation?.spent || 0;
+    const remainingAmount = allocation?.remaining || 0;
     const spentPercentage = allocatedAmount > 0 ? (spentAmount / allocatedAmount) * 100 : 0;
 
     return (
@@ -258,10 +248,8 @@ const DepartmentBudgets = () => {
               title="Total Allocated"
               value={formatCurrency(
                 budgets.reduce((sum, budget) => {
-                  const allocation = budget.departmentAllocations?.find(alloc =>
-                    alloc.departmentId === user.departmentId
-                  );
-                  return sum + (allocation?.allocatedAmount || 0);
+                  const allocation = budget.myAllocation;
+                  return sum + (allocation?.allocated || 0);
                 }, 0)
               )}
               color="blue"
@@ -271,10 +259,8 @@ const DepartmentBudgets = () => {
               title="Total Spent"
               value={formatCurrency(
                 budgets.reduce((sum, budget) => {
-                  const allocation = budget.departmentAllocations?.find(alloc =>
-                    alloc.departmentId === user.departmentId
-                  );
-                  return sum + (allocation?.spentAmount || 0);
+                  const allocation = budget.myAllocation;
+                  return sum + (allocation?.spent || 0);
                 }, 0)
               )}
               color="emerald"
@@ -284,12 +270,8 @@ const DepartmentBudgets = () => {
               title="Remaining"
               value={formatCurrency(
                 budgets.reduce((sum, budget) => {
-                  const allocation = budget.departmentAllocations?.find(alloc =>
-                    alloc.departmentId === user.departmentId
-                  );
-                  const allocated = allocation?.allocatedAmount || 0;
-                  const spent = allocation?.spentAmount || 0;
-                  return sum + (allocated - spent);
+                  const allocation = budget.myAllocation;
+                  return sum + (allocation?.remaining || 0);
                 }, 0)
               )}
               color="indigo"

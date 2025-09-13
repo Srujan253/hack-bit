@@ -92,6 +92,38 @@ export const budgetAPI = {
   getDepartmentBudgets: (params) => api.get('/budget/department/my-budgets', { params }),
 };
 
+// Admin API calls
+export const adminAPI = {
+  // Budget management
+  getBudgets: (params) => api.get('/budget/list', { params }),
+  createBudget: (data) => api.post('/budget/create', data),
+  allocateBudget: (budgetId, data) => api.post(`/budget/${budgetId}/allocate`, data),
+  getBudgetStatistics: (params) => api.get('/budget/admin/statistics', { params }),
+  
+  // Department management
+  getPendingApprovals: () => api.get('/auth/admin/pending-approvals'),
+  approveDepartment: (userId, action, comments) => 
+    api.put(`/auth/admin/approve-department/${userId}`, { action, comments }),
+  
+  // Transaction management
+  getPendingTransactions: (params) => api.get('/transaction/admin/pending', { params }),
+  reviewTransaction: (transactionId, action, comments) => 
+    api.put(`/transaction/${transactionId}/review`, { action, comments }),
+  getTransactionStatistics: (params) => api.get('/transaction/admin/statistics', { params }),
+};
+
+// Department API calls
+export const departmentAPI = {
+  // Budget operations
+  getMyBudgets: (params) => api.get('/budget/department/my-budgets', { params }),
+  
+  // Transaction operations
+  submitExpense: (data) => api.post('/transaction/submit', data),
+  getTransactionHistory: (params) => api.get('/transaction/department/history', { params }),
+  getTransactionById: (transactionId) => api.get(`/transaction/${transactionId}`),
+};
+
+
 // Transaction API calls
 export const transactionAPI = {
   // Department operations

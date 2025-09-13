@@ -3,6 +3,7 @@ import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import User from '../models/User.js';
 import { verifyToken, verifyAdmin, verifyDepartment, verifyAdminOrDepartment } from '../middleware/auth.js';
+import blockchainService from '../utils/blockchain.js';
 
 const router = express.Router();
 
@@ -198,19 +199,38 @@ router.put('/:transactionId/review', verifyToken, verifyAdmin, async (req, res) 
     }
 
     if (action === 'approve') {
-      // Update budget spent amount
+      // Use the enhanced budget deduction method
       const budget = transaction.budgetId;
-      const departmentAllocation = budget.departments.find(
-        dept => dept.departmentId.toString() === transaction.departmentId._id.toString()
-      );
-
-      if (departmentAllocation) {
-        departmentAllocation.spentAmount += transaction.amount;
-        budget.spentAmount += transaction.amount;
+      
+      try {
+        budget.deductFromDepartment(
+          transaction.departmentId._id,
+          transaction._id,
+          transaction.amount,
+          transaction.description
+        );
+        
         await budget.save();
+        transaction.approve(req.user._id, comments);
+        
+        // Record on blockchain
+        await blockchainService.addExpenseApproval({
+          transactionId: transaction._id,
+          budgetId: budget._id,
+          departmentId: transaction.departmentId._id,
+          amount: transaction.amount,
+          description: transaction.description,
+          approvedBy: req.user._id
+        });
+        
+      } catch (budgetError) {
+        return res.status(400).json({ 
+          message: budgetError.message,
+          available: budget.departments.find(d => 
+            d.departmentId.toString() === transaction.departmentId._id.toString()
+          )?.remainingAmount || 0
+        });
       }
-
-      transaction.approve(req.user._id, comments);
     } else {
       transaction.reject(req.user._id, comments);
     }

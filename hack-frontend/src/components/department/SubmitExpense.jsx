@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { transactionAPI } from '../../services/api';
+import { transactionAPI, departmentAPI } from '../../services/api';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +28,7 @@ const SubmitExpense = () => {
       vendorContact: '',
       invoiceNumber: '',
       priority: 'medium',
-      expectedDate: ''
+      invoiceDate: ''
     }
   });
 
@@ -39,8 +39,18 @@ const SubmitExpense = () => {
   const fetchAvailableBudgets = async () => {
     try {
       setLoading(true);
-      const response = await transactionAPI.getAvailableBudgets();
-      setBudgets(response.data.budgets);
+      const response = await departmentAPI.getMyBudgets();
+      console.log('Budgets response:', response.data);
+      const departmentBudgets = response.data.budgets || [];
+      
+      // Filter only active budgets with remaining allocation
+      const availableBudgets = departmentBudgets.filter(budget => 
+        budget.status === 'active' && 
+        budget.myAllocation && 
+        budget.myAllocation.remaining > 0
+      );
+      
+      setBudgets(availableBudgets);
     } catch (error) {
       console.error('Error fetching budgets:', error);
       toast.error('Failed to load available budgets');
@@ -52,7 +62,7 @@ const SubmitExpense = () => {
   const onSubmit = async (data) => {
     try {
       setSubmitting(true);
-      await transactionAPI.createTransaction({
+      await transactionAPI.submitTransaction({
         ...data,
         amount: parseFloat(data.amount)
       });
@@ -155,11 +165,11 @@ const SubmitExpense = () => {
                 </div>
                 <div>
                   <span className="text-blue-700 font-medium">Allocated:</span>
-                  <span className="ml-2 text-blue-900">₹{selectedBudget.allocatedAmount?.toLocaleString()}</span>
+                  <span className="ml-2 text-blue-900">₹{selectedBudget.myAllocation?.allocated?.toLocaleString()}</span>
                 </div>
                 <div>
                   <span className="text-blue-700 font-medium">Remaining:</span>
-                  <span className="ml-2 text-blue-900">₹{(selectedBudget.allocatedAmount - selectedBudget.spentAmount)?.toLocaleString()}</span>
+                  <span className="ml-2 text-blue-900">₹{selectedBudget.myAllocation?.remaining?.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -248,22 +258,32 @@ const SubmitExpense = () => {
           {/* Additional Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Invoice Number <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                {...register('invoiceNumber')}
+                {...register('invoiceNumber', { required: 'Invoice number is required' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="Invoice/Bill number (if available)"
+                placeholder="Enter invoice/bill number"
               />
+              {errors.invoiceNumber && (
+                <p className="mt-1 text-sm text-red-600">{errors.invoiceNumber.message}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Expected Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Invoice Date <span className="text-red-500">*</span>
+              </label>
               <input
                 type="date"
-                {...register('expectedDate')}
+                {...register('invoiceDate', { required: 'Invoice date is required' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
+              {errors.invoiceDate && (
+                <p className="mt-1 text-sm text-red-600">{errors.invoiceDate.message}</p>
+              )}
             </div>
           </div>
 

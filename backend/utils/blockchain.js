@@ -86,6 +86,146 @@ class BlockchainService {
     }
   }
 
+  // Add a new budget transaction to blockchain
+  async addBudgetTransaction(budget) {
+    try {
+      const lastBlock = await this.getLatestBlock();
+      
+      const newBlock = new Blockchain({
+        blockNumber: lastBlock.blockNumber + 1,
+        previousHash: lastBlock.hash,
+        transactions: [{
+          type: 'budget_creation',
+          data: {
+            budgetId: budget._id,
+            title: budget.title,
+            amount: budget.totalAmount,
+            category: budget.category,
+            financialYear: budget.financialYear,
+            createdBy: budget.createdBy,
+            timestamp: new Date()
+          }
+        }],
+        nonce: 0
+      });
+
+      newBlock.mineBlock(this.difficulty);
+      await newBlock.save();
+      
+      console.log('Budget transaction added to blockchain:', newBlock.hash);
+      return newBlock;
+    } catch (error) {
+      console.error('Error adding budget transaction to blockchain:', error);
+      throw error;
+    }
+  }
+
+  async addBudgetAllocation(allocationData) {
+    try {
+      const lastBlock = await this.getLatestBlock();
+      
+      const newBlock = new Blockchain({
+        blockNumber: lastBlock.blockNumber + 1,
+        previousHash: lastBlock.hash,
+        transactions: [{
+          type: 'budget_allocation',
+          data: {
+            budgetId: allocationData.budgetId,
+            departmentId: allocationData.departmentId,
+            amount: allocationData.amount,
+            allocatedBy: allocationData.allocatedBy,
+            timestamp: new Date()
+          }
+        }],
+        nonce: 0,
+        merkleRoot: '', // Will be calculated in pre-save middleware
+        hash: '' // Will be calculated in pre-save middleware
+      });
+
+      // Calculate merkle root and hash before mining
+      newBlock.merkleRoot = newBlock.calculateMerkleRoot();
+      newBlock.hash = newBlock.calculateHash();
+      
+      newBlock.mineBlock(this.difficulty);
+      await newBlock.save();
+      
+      console.log('Budget allocation added to blockchain:', newBlock.hash);
+      return newBlock;
+    } catch (error) {
+      console.error('Error adding budget allocation to blockchain:', error);
+      throw error;
+    }
+  }
+
+  async addExpenseApproval(transactionData) {
+    try {
+      const lastBlock = await this.getLatestBlock();
+      
+      const newBlock = new Blockchain({
+        blockNumber: lastBlock.blockNumber + 1,
+        previousHash: lastBlock.hash,
+        transactions: [{
+          type: 'expense_approval',
+          data: {
+            transactionId: transactionData.transactionId,
+            budgetId: transactionData.budgetId,
+            departmentId: transactionData.departmentId,
+            amount: transactionData.amount,
+            description: transactionData.description,
+            approvedBy: transactionData.approvedBy,
+            timestamp: new Date()
+          }
+        }],
+        nonce: 0,
+        merkleRoot: '', // Will be calculated in pre-save middleware
+        hash: '' // Will be calculated in pre-save middleware
+      });
+
+      // Calculate merkle root and hash before mining
+      newBlock.merkleRoot = newBlock.calculateMerkleRoot();
+      newBlock.hash = newBlock.calculateHash();
+      
+      newBlock.mineBlock(this.difficulty);
+      await newBlock.save();
+      
+      console.log('Expense approval added to blockchain:', newBlock.hash);
+      return newBlock;
+    } catch (error) {
+      console.error('Error adding expense approval to blockchain:', error);
+      throw error;
+    }
+  }
+
+  async addTransactionCompletion(transactionData) {
+    try {
+      const lastBlock = await this.getLatestBlock();
+      
+      const newBlock = new Blockchain({
+        blockNumber: lastBlock.blockNumber + 1,
+        previousHash: lastBlock.hash,
+        transactions: [{
+          type: 'transaction_completion',
+          data: {
+            transactionId: transactionData.transactionId,
+            finalAmount: transactionData.amount,
+            completedBy: transactionData.completedBy,
+            timestamp: new Date()
+          }
+        }],
+        nonce: 0
+      });
+
+      newBlock.mineBlock(this.difficulty);
+      await newBlock.save();
+      
+      console.log('Transaction completion added to blockchain:', newBlock.hash);
+      return newBlock;
+    } catch (error) {
+      console.error('Error adding transaction completion to blockchain:', error);
+      throw error;
+    }
+  }
+
   // Record budget creation on blockchain
   async recordBudgetCreation(budget, adminId) {
     const transactionData = {

@@ -3,6 +3,7 @@ import Budget from '../models/Budget.js';
 import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import { verifyToken, verifyAdmin, verifyAdminOrDepartment } from '../middleware/auth.js';
+import blockchainService from '../utils/blockchain.js';
 
 const router = express.Router();
 
@@ -131,6 +132,12 @@ router.get('/:budgetId', async (req, res) => {
 // Allocate budget to department (Admin only)
 router.post('/:budgetId/allocate', verifyToken, verifyAdmin, async (req, res) => {
   try {
+    console.log('Budget allocation request:', {
+      budgetId: req.params.budgetId,
+      body: req.body,
+      user: req.user?.email
+    });
+
     const { departmentId, allocatedAmount } = req.body;
 
     if (!departmentId || !allocatedAmount) {
@@ -142,37 +149,77 @@ router.post('/:budgetId/allocate', verifyToken, verifyAdmin, async (req, res) =>
       return res.status(404).json({ message: 'Budget not found' });
     }
 
+    console.log('Found budget:', {
+      id: budget._id,
+      title: budget.title,
+      totalAmount: budget.totalAmount,
+      currentDepartments: budget.departments.length
+    });
+
     const department = await User.findOne({ _id: departmentId, role: 'department' });
     if (!department) {
       return res.status(404).json({ message: 'Department not found' });
     }
 
+    console.log('Found department:', {
+      id: department._id,
+      name: department.departmentName,
+      code: department.departmentCode
+    });
+
     // Check if budget can accommodate this allocation
-    if (!budget.canAllocate(allocatedAmount)) {
+    const canAllocateResult = budget.canAllocate(allocatedAmount, departmentId);
+    console.log('Can allocate check:', {
+      canAllocate: canAllocateResult,
+      requestedAmount: allocatedAmount,
+      totalBudget: budget.totalAmount,
+      currentAllocated: budget.getTotalAllocated()
+    });
+
+    if (!canAllocateResult) {
+      const currentAllocated = budget.getTotalAllocated();
+      const existingDept = budget.departments.find(d => d.departmentId.toString() === departmentId.toString());
+      const existingAllocation = existingDept ? existingDept.allocatedAmount : 0;
+      const available = budget.totalAmount - currentAllocated + existingAllocation;
+      
       return res.status(400).json({ 
         message: 'Insufficient budget. Cannot allocate more than available amount.',
-        available: budget.totalAmount - budget.getTotalAllocated()
+        available,
+        requested: allocatedAmount,
+        totalBudget: budget.totalAmount,
+        currentAllocated: currentAllocated - existingAllocation
       });
     }
 
-    // Check if department already has allocation
-    const existingAllocation = budget.departments.find(
-      dept => dept.departmentId.toString() === departmentId
+    console.log('Calling allocateToDepartment...');
+    // Use the enhanced allocation method
+    budget.allocateToDepartment(
+      departmentId,
+      department.departmentName,
+      department.departmentCode,
+      allocatedAmount,
+      req.user._id
     );
 
-    if (existingAllocation) {
-      existingAllocation.allocatedAmount += allocatedAmount;
-    } else {
-      budget.departments.push({
-        departmentId,
-        departmentName: department.departmentName,
-        allocatedAmount,
-        spentAmount: 0
-      });
-    }
-
-    budget.allocatedAmount = budget.getTotalAllocated();
+    console.log('Saving budget...');
     await budget.save();
+
+    console.log('Budget saved successfully');
+
+    // Record allocation on blockchain
+    try {
+      console.log('Recording on blockchain...');
+      await blockchainService.addBudgetAllocation({
+        budgetId: budget._id,
+        departmentId,
+        amount: allocatedAmount,
+        allocatedBy: req.user._id
+      });
+      console.log('Blockchain record successful');
+    } catch (blockchainError) {
+      console.error('Blockchain error (non-critical):', blockchainError);
+      // Continue execution even if blockchain fails
+    }
 
     res.json({
       message: 'Budget allocated successfully',
@@ -180,13 +227,27 @@ router.post('/:budgetId/allocate', verifyToken, verifyAdmin, async (req, res) =>
       allocation: {
         departmentId,
         departmentName: department.departmentName,
-        allocatedAmount
+        departmentCode: department.departmentCode,
+        allocatedAmount,
+        allocatedBy: req.user._id,
+        allocatedAt: new Date()
       }
     });
 
   } catch (error) {
     console.error('Allocate budget error:', error);
-    res.status(500).json({ message: 'Server error allocating budget' });
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      budgetId: req.params.budgetId,
+      departmentId: req.body.departmentId,
+      allocatedAmount: req.body.allocatedAmount,
+      errorMessage: error.message
+    });
+    res.status(500).json({ 
+      message: 'Server error allocating budget',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
@@ -195,18 +256,33 @@ router.get('/department/my-budgets', verifyToken, verifyAdminOrDepartment, async
   try {
     let departmentId;
     
+    console.log('User requesting budgets:', req.user);
+    
     if (req.user.role === 'department') {
       departmentId = req.user._id;
     } else {
       // Admin can specify department ID
       departmentId = req.query.departmentId || req.user._id;
     }
+    
+    console.log('Department ID for budget query:', departmentId);
 
     const budgets = await Budget.find({
       'departments.departmentId': departmentId
     }).populate('createdBy', 'email role');
+    
+    console.log('Found budgets for department:', budgets.length);
+    console.log('Budget details:', budgets.map(b => ({ 
+      id: b._id, 
+      title: b.title, 
+      departments: b.departments.map(d => ({ 
+        deptId: d.departmentId, 
+        name: d.departmentName, 
+        allocated: d.allocatedAmount 
+      })) 
+    })));
 
-    // Filter to show only relevant department data
+    // Filter to show only relevant department data with step-by-step tracking
     const departmentBudgets = budgets.map(budget => {
       const deptAllocation = budget.departments.find(
         dept => dept.departmentId.toString() === departmentId.toString()
@@ -219,10 +295,21 @@ router.get('/department/my-budgets', verifyToken, verifyAdminOrDepartment, async
         category: budget.category,
         financialYear: budget.financialYear,
         status: budget.status,
-        totalAmount: budget.totalAmount,
-        allocatedToMe: deptAllocation?.allocatedAmount || 0,
-        spentByMe: deptAllocation?.spentAmount || 0,
-        remainingForMe: (deptAllocation?.allocatedAmount || 0) - (deptAllocation?.spentAmount || 0),
+        totalBudget: budget.totalAmount,
+        myAllocation: {
+          allocated: deptAllocation?.allocatedAmount || 0,
+          spent: deptAllocation?.spentAmount || 0,
+          remaining: deptAllocation?.remainingAmount || 0,
+          utilizationRate: deptAllocation?.allocatedAmount ? 
+            ((deptAllocation.spentAmount / deptAllocation.allocatedAmount) * 100).toFixed(1) : 0,
+          transactions: deptAllocation?.transactions || [],
+          allocationHistory: deptAllocation?.allocationHistory || []
+        },
+        progressSteps: {
+          allocated: deptAllocation?.allocatedAmount > 0,
+          hasTransactions: (deptAllocation?.transactions || []).length > 0,
+          isActive: deptAllocation?.remainingAmount > 0
+        },
         createdAt: budget.createdAt
       };
     });

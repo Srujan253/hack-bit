@@ -17,11 +17,13 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminBudgets from './components/admin/AdminBudgets';
 import AdminTransactions from './components/admin/AdminTransactions';
 import AdminApprovals from './components/admin/AdminApprovals';
+import BudgetAllocation from './components/admin/BudgetAllocation';
 
 import DepartmentDashboard from './components/department/DepartmentDashboard';
 import DepartmentBudgets from './components/department/DepartmentBudgets';
 import DepartmentTransactions from './components/department/DepartmentTransactions';
 import SubmitExpense from './components/department/SubmitExpense';
+import ProgressiveExpenseTracker from './components/department/ProgressiveExpenseTracker';
 
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -76,6 +78,11 @@ export default function App() {
               <Layout><AdminApprovals /></Layout>
             </ProtectedRoute>
           } />
+          <Route path="/admin/allocate-budget" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><BudgetAllocation /></Layout>
+            </ProtectedRoute>
+          } />
           
           {/* Department Routes */}
           <Route path="/department" element={
@@ -96,6 +103,11 @@ export default function App() {
           <Route path="/department/submit-expense" element={
             <ProtectedRoute requiredRole="department">
               <Layout><SubmitExpense /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/department/expense-tracker" element={
+            <ProtectedRoute requiredRole="department">
+              <Layout><ProgressiveExpenseTracker /></Layout>
             </ProtectedRoute>
           } />
           
