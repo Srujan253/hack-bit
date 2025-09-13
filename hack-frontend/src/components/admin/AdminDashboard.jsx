@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  CurrencyDollarIcon, 
-  DocumentTextIcon, 
+import toast from 'react-hot-toast';
+import {
+  CurrencyDollarIcon,
+  DocumentTextIcon,
   UserGroupIcon,
-  ChartBarIcon,
   ClockIcon,
-  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { budgetAPI, transactionAPI, authAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import { formatCurrency, formatDate, getPriorityColor } from '../../utils/helpers';
+import StatCard from '../common/StatCard';
+import GradientHeader from '../common/GradientHeader';
+import ActionButton from '../common/Button';
+import InteractiveTable from '../common/InteractiveTable';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -100,314 +103,198 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
+  const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -50 },
+  };
+
+  const pageTransition = {
+    type: 'tween',
+    ease: 'anticipate',
+    duration: 0.5,
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-lg p-8 text-white">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-red-100 text-lg">
-              Manage budgets, approve transactions, and oversee the platform
-            </p>
-          </div>
-          <div className="mt-4 md:mt-0 flex space-x-3">
-            <Link
-              to="/admin/budgets"
-              className="px-4 py-2 bg-white text-red-600 rounded-md hover:bg-red-50 font-medium"
-            >
-              Manage Budgets
+    <motion.div
+      className="space-y-8 px-4"
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      <GradientHeader
+        title="Admin Dashboard"
+        subtitle="Manage budgets, approve transactions, and oversee the platform"
+        actions={
+          <>
+            <Link to="/admin/budgets">
+              <ActionButton variant="primary" size="md">Manage Budgets</ActionButton>
             </Link>
-            <Link
-              to="/admin/approvals"
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-400 font-medium"
-            >
-              Pending Approvals
+            <Link to="/admin/approvals">
+              <ActionButton variant="danger" size="md">Pending Approvals</ActionButton>
             </Link>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Budgets</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.budgets?.totalBudgets || 0}
-              </p>
-              <p className="text-sm text-gray-500">
-                {formatCurrency(stats.budgets?.totalAmount || 0)} allocated
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DocumentTextIcon className="w-6 h-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Transactions</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.transactions?.totalTransactions || 0}
-              </p>
-              <p className="text-sm text-gray-500">
-                {formatCurrency(stats.transactions?.totalAmount || 0)} processed
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <ClockIcon className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending Transactions</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {stats.pendingTransactions}
-              </p>
-              <p className="text-sm text-gray-500">Awaiting review</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <UserGroupIcon className="w-6 h-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending Approvals</p>
-              <p className="text-2xl font-bold text-orange-600">
-                {stats.pendingApprovals}
-              </p>
-              <p className="text-sm text-gray-500">Department signups</p>
-            </div>
-          </div>
-        </motion.div>
+        <StatCard
+          icon={CurrencyDollarIcon}
+          title="Total Budgets"
+          value={stats.budgets?.totalBudgets || 0}
+          subtitle={`${formatCurrency(stats.budgets?.totalAmount || 0)} allocated`}
+          color="blue"
+        />
+        <StatCard
+          icon={DocumentTextIcon}
+          title="Total Transactions"
+          value={stats.transactions?.totalTransactions || 0}
+          subtitle={`${formatCurrency(stats.transactions?.totalAmount || 0)} processed`}
+          color="emerald"
+        />
+        <StatCard
+          icon={ClockIcon}
+          title="Pending Transactions"
+          value={stats.pendingTransactions}
+          subtitle="Awaiting review"
+          color="gold"
+        />
+        <StatCard
+          icon={UserGroupIcon}
+          title="Pending Approvals"
+          value={stats.pendingApprovals}
+          subtitle="Department signups"
+          color="violet"
+        />
       </div>
 
-      {/* Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Pending Department Approvals */}
-        <motion.div
-          className="bg-white rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Pending Department Approvals</h3>
-              <Link
-                to="/admin/approvals"
-                className="text-red-600 hover:text-red-700 text-sm font-medium"
-              >
-                View All →
-              </Link>
-            </div>
-          </div>
-          <div className="p-6">
-            {!Array.isArray(pendingApprovals) || pendingApprovals.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No pending approvals</p>
-            ) : (
-              <div className="space-y-4">
-                {pendingApprovals.slice(0, 3).map((approval) => (
-                  <div key={approval._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                    <div>
-                      <h4 className="font-medium text-gray-900">{approval.departmentName}</h4>
-                      <p className="text-sm text-gray-500">{approval.departmentCode} • {approval.email}</p>
-                      <p className="text-xs text-gray-400">Aadhaar: {approval.aadhaarNumber}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleDepartmentApproval(approval._id, 'approve')}
-                        className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200"
-                      >
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => handleDepartmentApproval(approval._id, 'reject')}
-                        className="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200"
-                      >
-                        Reject
-                      </button>
-                    </div>
+        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Pending Department Approvals</h3>
+          {pendingApprovals.length === 0 ? (
+            <p className="text-textMuted text-center py-4">No pending approvals</p>
+          ) : (
+            <div className="space-y-4">
+              {pendingApprovals.slice(0, 3).map((approval) => (
+                <motion.div
+                  key={approval._id}
+                  whileHover={{ scale: 1.02 }}
+                  className="flex items-center justify-between p-4 border border-border rounded-xl cursor-pointer"
+                >
+                  <div>
+                    <h4 className="font-medium text-textPrimary">{approval.departmentName}</h4>
+                    <p className="text-sm text-textMuted">{approval.departmentCode} • {approval.email}</p>
+                    <p className="text-xs text-textMuted">Aadhaar: {approval.aadhaarNumber}</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
+                  <div className="flex space-x-2">
+                    <ActionButton
+                      size="sm"
+                      variant="success"
+                      onClick={() => handleDepartmentApproval(approval._id, 'approve')}
+                    >
+                      Approve
+                    </ActionButton>
+                    <ActionButton
+                      size="sm"
+                      variant="danger"
+                      onClick={() => handleDepartmentApproval(approval._id, 'reject')}
+                    >
+                      Reject
+                    </ActionButton>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Pending Transactions */}
-        <motion.div
-          className="bg-white rounded-lg shadow-sm border border-gray-200"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Pending Transactions</h3>
-              <Link
-                to="/admin/transactions?status=pending"
-                className="text-red-600 hover:text-red-700 text-sm font-medium"
-              >
-                View All →
-              </Link>
-            </div>
-          </div>
-          <div className="p-6">
-            {recentTransactions.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No pending transactions</p>
-            ) : (
-              <div className="space-y-4">
-                {recentTransactions.map((transaction) => (
-                  <div key={transaction._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-gray-900">{transaction.transactionId}</h4>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(transaction.priority)}`}>
-                          {transaction.priority}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 truncate">{transaction.description}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                        <span>{transaction.departmentId?.departmentName}</span>
-                        <span>{formatCurrency(transaction.amount)}</span>
-                        <span>{formatDate(transaction.requestedAt)}</span>
-                      </div>
+        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
+          <h3 className="text-lg font-semibold text-textPrimary mb-4">Pending Transactions</h3>
+          {recentTransactions.length === 0 ? (
+            <p className="text-textMuted text-center py-4">No pending transactions</p>
+          ) : (
+            <div className="space-y-4">
+              {recentTransactions.map((transaction) => (
+                <motion.div
+                  key={transaction._id}
+                  whileHover={{ scale: 1.02 }}
+                  className="flex items-center justify-between p-4 border border-border rounded-xl cursor-pointer"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-medium text-textPrimary">{transaction.transactionId}</h4>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(transaction.priority)}`}>
+                        {transaction.priority}
+                      </span>
                     </div>
-                    <div className="flex space-x-2">
-                      <button className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200">
-                        Approve
-                      </button>
-                      <button className="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200">
-                        Reject
-                      </button>
+                    <p className="text-sm text-textMuted truncate">{transaction.description}</p>
+                    <div className="flex items-center space-x-4 text-xs text-textMuted mt-1">
+                      <span>{transaction.departmentId?.departmentName}</span>
+                      <span>{formatCurrency(transaction.amount)}</span>
+                      <span>{formatDate(transaction.requestedAt)}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </motion.div>
+                  <div className="flex space-x-2">
+                    <ActionButton size="sm" variant="success">Approve</ActionButton>
+                    <ActionButton size="sm" variant="danger">Reject</ActionButton>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Transaction Status Overview */}
-      <motion.div
-        className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Transaction Status Overview</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-600">
-              {stats.transactions?.pendingCount || 0}
-            </p>
-            <p className="text-sm text-gray-600">Pending</p>
+      <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-textPrimary mb-4">Transaction Status Overview</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div>
+            <p className="text-2xl font-bold text-gold">{stats.transactions?.pendingCount || 0}</p>
+            <p className="text-sm text-textMuted">Pending</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">
-              {stats.transactions?.approvedCount || 0}
-            </p>
-            <p className="text-sm text-gray-600">Approved</p>
+          <div>
+            <p className="text-2xl font-bold text-success">{stats.transactions?.approvedCount || 0}</p>
+            <p className="text-sm text-textMuted">Approved</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-blue-600">
-              {stats.transactions?.completedCount || 0}
-            </p>
-            <p className="text-sm text-gray-600">Completed</p>
+          <div>
+            <p className="text-2xl font-bold text-blue-500">{stats.transactions?.completedCount || 0}</p>
+            <p className="text-sm text-textMuted">Completed</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-red-600">
-              {stats.transactions?.rejectedCount || 0}
-            </p>
-            <p className="text-sm text-gray-600">Rejected</p>
+          <div>
+            <p className="text-2xl font-bold text-danger">{stats.transactions?.rejectedCount || 0}</p>
+            <p className="text-sm text-textMuted">Rejected</p>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Quick Actions */}
-      <motion.div
-        className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+      <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-textPrimary mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/admin/budgets"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
-          >
-            <CurrencyDollarIcon className="w-8 h-8 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Create Budget</p>
-              <p className="text-sm text-gray-500">Add new budget allocation</p>
-            </div>
+          <Link to="/admin/budgets">
+            <ActionButton variant="blue" size="md" icon={CurrencyDollarIcon}>
+              Create Budget
+            </ActionButton>
           </Link>
-
-          <Link
-            to="/admin/transactions"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors"
-          >
-            <DocumentTextIcon className="w-8 h-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Review Transactions</p>
-              <p className="text-sm text-gray-500">Approve pending requests</p>
-            </div>
+          <Link to="/admin/transactions">
+            <ActionButton variant="emerald" size="md" icon={DocumentTextIcon}>
+              Review Transactions
+            </ActionButton>
           </Link>
-
-          <Link
-            to="/admin/approvals"
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors"
-          >
-            <UserGroupIcon className="w-8 h-8 text-orange-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Department Approvals</p>
-              <p className="text-sm text-gray-500">Manage department signups</p>
-            </div>
+          <Link to="/admin/approvals">
+            <ActionButton variant="violet" size="md" icon={UserGroupIcon}>
+              Department Approvals
+            </ActionButton>
           </Link>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </motion.div>
   );
 };
 
