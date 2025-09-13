@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react';
 import { authAPI } from '../../services/api';
 import useAuthStore from '../../store/authStore';
 import toast from 'react-hot-toast';
@@ -10,7 +11,7 @@ import toast from 'react-hot-toast';
 const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { setAuth, setLoading } = useAuthStore();
+  const { setAuth, setLoading, loading } = useAuthStore();
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -36,9 +37,14 @@ const AdminLogin = () => {
       transition={{ duration: 0.5 }}
       className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8"
     >
-      <div className="max-w-md w-full space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-md w-full space-y-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8"
+      >
         <div>
-          <div className="mx-auto h-12 w-12 bg-error rounded-lg flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
             <svg className="h-6 w-6 text-textPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -52,9 +58,14 @@ const AdminLogin = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleAdminLogin)}>
-          <div className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="space-y-4"
+          >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-textPrimary">
                 Email Address
               </label>
               <input
@@ -66,16 +77,16 @@ const AdminLogin = () => {
                   }
                 })}
                 type="email"
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-md focus:outline-none focus:ring-error focus:border-error focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-border placeholder-textMuted text-textPrimary rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white/10 backdrop-blur-sm"
                 placeholder="Enter admin email"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-error">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-textPrimary">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -88,7 +99,7 @@ const AdminLogin = () => {
                     }
                   })}
                   type={showPassword ? 'text' : 'password'}
-                  className="appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 pr-10 border border-border placeholder-textMuted text-textPrimary rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white/10 backdrop-blur-sm"
                   placeholder="Enter password"
                 />
                 <button
@@ -97,26 +108,30 @@ const AdminLogin = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                    <EyeSlashIcon className="h-5 w-5 text-textPrimary" />
                   ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                    <EyeIcon className="h-5 w-5 text-textPrimary" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-error">{errors.password.message}</p>
               )}
             </div>
-          </div>
+          </motion.div>
 
           <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-textPrimary bg-error hover:bg-error/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-error"
-                >
-                  Sign In as Admin
-                </motion.button>
+            type="submit"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-full text-textPrimary bg-gradient-to-r from-blue-500 to-purple-600 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="animate-spin h-5 w-5 mr-2" />
+            ) : null}
+            Sign In as Admin
+          </motion.button>
 
           <div className="text-center space-y-2">
             <div className="text-sm text-textMuted">
@@ -140,7 +155,7 @@ const AdminLogin = () => {
             </div>
           </div>
         </form>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

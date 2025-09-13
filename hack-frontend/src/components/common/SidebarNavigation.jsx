@@ -12,6 +12,9 @@ const SidebarNavigation = ({ navItems, className = '' }) => {
     setIsCollapsed(!isCollapsed);
   };
 
+  // Filter out department signup from navItems
+  const filteredNavItems = navItems.filter(item => item.href !== '/department/signup');
+
   return (
     <motion.div
       initial={{ width: 256 }}
@@ -59,7 +62,7 @@ const SidebarNavigation = ({ navItems, className = '' }) => {
 
         {/* Navigation Items */}
         <nav className="flex-1 p-4 space-y-2">
-          {navItems.map((item, index) => {
+          {filteredNavItems.map((item, index) => {
             const isActive = location.pathname === item.href;
             return (
               <motion.div

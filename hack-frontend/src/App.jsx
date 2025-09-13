@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import useAuthStore from './store/authStore';
 
 // Import components
@@ -12,6 +13,7 @@ import BudgetDetails from './components/public/BudgetDetails';
 import Login from './components/auth/Login';
 import DepartmentSignup from './components/auth/DepartmentSignup';
 import AdminLogin from './components/auth/AdminLogin';
+import RoleBasedLogin from './components/auth/RoleBasedLogin';
 
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminBudgets from './components/admin/AdminBudgets';
@@ -32,8 +34,9 @@ export default function App() {
   const { isAuthenticated, user } = useAuthStore();
 
   return (
-    <Router>
-      <div className="min-h-screen bg-background">
+    <ErrorBoundary>
+      <Router>
+        <div className="min-h-screen bg-background">
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -53,9 +56,10 @@ export default function App() {
           <Route path="/transactions" element={<Layout><PublicTransactions /></Layout>} />
           
           {/* Authentication Routes */}
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<RoleBasedLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/department/signup" element={<DepartmentSignup />} />
+          
           
           {/* Admin Routes */}
           <Route path="/admin" element={
@@ -125,5 +129,6 @@ export default function App() {
         </Routes>
       </div>
     </Router>
+    </ErrorBoundary>
   );
 }
