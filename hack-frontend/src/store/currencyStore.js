@@ -136,17 +136,15 @@ const useCurrencyStore = create(
           if (typeof data === 'object' && data !== null) {
             const converted = { ...data };
             
-            // Convert common financial fields
-            const financialFields = [
+            // Only convert fields that represent money/amount
+            const moneyFields = [
               'amount', 'totalAmount', 'allocatedAmount', 'spentAmount',
-              'remainingAmount', 'budgetAmount', 'availableAmount', 'allocated', 'spent', 'remaining',
-              'totalBudgets', 'totalSpent', 'totalAllocated', 'totalRemaining',
+              'remainingAmount', 'budgetAmount', 'availableAmount',
               'pendingAmount', 'approvedAmount', 'completedAmount', 'rejectedAmount',
-              'count', 'totalCount', 'value', 'budget', 'expense', 'cost', 'price',
-              'minAmount', 'maxAmount', 'averageAmount'
+              'minAmount', 'maxAmount', 'averageAmount', 'expense', 'cost', 'price'
             ];
 
-            for (const field of financialFields) {
+            for (const field of moneyFields) {
               if (converted[field] !== undefined) {
                 const originalValue = converted[field];
                 converted[field] = convertValue(converted[field]);

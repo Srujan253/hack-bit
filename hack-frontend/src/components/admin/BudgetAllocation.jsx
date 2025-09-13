@@ -8,7 +8,7 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { adminAPI, publicAPI } from '../../services/api';
-import { formatCurrency } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import toast from 'react-hot-toast';
 
 const BudgetAllocation = () => {
@@ -21,6 +21,7 @@ const BudgetAllocation = () => {
   });
   const [loading, setLoading] = useState(true);
   const [allocating, setAllocating] = useState(false);
+  const { currentCurrency, setCurrency, formatCurrency, convertAmount } = useCurrencyStore();
 
   useEffect(() => {
     fetchBudgets();
@@ -100,8 +101,22 @@ const BudgetAllocation = () => {
     >
       {/* Header */}
       <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
-        <h1 className="text-2xl font-bold text-textPrimary mb-2">Budget Allocation</h1>
-        <p className="text-textMuted">Allocate budget funds to departments step by step</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-textPrimary mb-2">Budget Allocation</h1>
+            <p className="text-textMuted">Allocate budget funds to departments step by step</p>
+          </div>
+          <div>
+            <select
+              value={currentCurrency}
+              onChange={e => setCurrency(e.target.value)}
+              className="bg-background text-textPrimary px-3 py-2 rounded-md border border-border focus:ring-2 focus:ring-primary"
+            >
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Budget Selection */}
@@ -135,10 +150,10 @@ const BudgetAllocation = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-textPrimary">
-                      {formatCurrency(budget.totalAmount)}
+                      {formatCurrency(convertAmount(budget.totalAmount, 'INR', currentCurrency))}
                     </div>
                     <div className="text-sm text-textMuted">
-                      Available: {formatCurrency(getAvailableAmount(budget))}
+                      Available: {formatCurrency(convertAmount(getAvailableAmount(budget), 'INR', currentCurrency))}
                     </div>
                   </div>
                 </div>
@@ -167,10 +182,10 @@ const BudgetAllocation = () => {
                           <span className="text-textPrimary">{dept.departmentName}</span>
                           <div className="flex items-center space-x-2">
                             <span className="text-textMuted">
-                              {formatCurrency(dept.allocatedAmount)}
+                              {formatCurrency(convertAmount(dept.allocatedAmount, 'INR', currentCurrency))}
                             </span>
                             <span className="text-success">
-                              Spent: {formatCurrency(dept.spentAmount || 0)}
+                              Spent: {formatCurrency(convertAmount(dept.spentAmount || 0, 'INR', currentCurrency))}
                             </span>
                           </div>
                         </div>
@@ -197,7 +212,7 @@ const BudgetAllocation = () => {
                   <div className="p-3 bg-primary/10 rounded-md border border-primary/20">
                     <div className="font-medium text-textPrimary">{selectedBudget.title}</div>
                     <div className="text-sm text-textMuted">
-                      Available: {formatCurrency(getAvailableAmount(selectedBudget))}
+                      Available: {formatCurrency(convertAmount(getAvailableAmount(selectedBudget), 'INR', currentCurrency))}
                     </div>
                   </div>
                 </div>

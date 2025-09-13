@@ -1,0 +1,130 @@
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import Budget from '../models/Budget.js';
+import Transaction from '../models/Transaction.js';
+import User from '../models/User.js';
+
+dotenv.config();
+
+const questions = [
+  // Budget related
+  'What is the total budget allocated?',
+  'How much has been spent so far?',
+  'What is the remaining budget?',
+  'List all departments and their budgets.',
+  'Show recent transactions.',
+  'Who approved the last transaction?',
+  'What is the largest expense this month?',
+  'What is the budget for the IT department?',
+  'What is the budget utilization rate?',
+  'List all budget categories.',
+  'Show budgets for the current financial year.',
+  'Which department has the highest budget?',
+  'Which department has spent the most?',
+  'Show budgets with utilization rate above 80%.',
+  'Show budgets with remaining amount below 10%.',
+  'List all budgets created in the last month.',
+  'Show budgets for the HR department.',
+  'Show budgets for the Finance department.',
+  'Show budgets for the Operations department.',
+  'Show budgets for the Marketing department.',
+  'Show budgets for the R&D department.',
+  'Show budgets for the Admin department.',
+  'Show budgets for the Legal department.',
+  'Show budgets for the Procurement department.',
+  'Show budgets for the Logistics department.',
+  'Show budgets for the Sales department.',
+  'Show budgets for the Customer Service department.',
+  'Show budgets for the Security department.',
+  'Show budgets for the Maintenance department.',
+  'Show budgets for the IT Support department.',
+  'Show budgets for the Training department.',
+  'Show budgets for the Quality Assurance department.',
+  'Show budgets for the Compliance department.',
+  'Show budgets for the Public Relations department.',
+  'Show budgets for the Research department.',
+  'Show budgets for the Development department.',
+  'Show budgets for the Testing department.',
+  'Show budgets for the Deployment department.',
+  'Show budgets for the Documentation department.',
+  'Show budgets for the Design department.',
+  'Show budgets for the Engineering department.',
+  'Show budgets for the Product Management department.',
+  'Show budgets for the Project Management department.',
+  'Show budgets for the Business Development department.',
+  'Show budgets for the Strategy department.',
+  'Show budgets for the Analytics department.',
+  'Show budgets for the Data Science department.',
+  'Show budgets for the Machine Learning department.',
+  'Show budgets for the Artificial Intelligence department.',
+  'Show budgets for the Cloud department.',
+  'Show budgets for the Infrastructure department.',
+  'Show budgets for the Security Operations department.',
+  'Show budgets for the Network department.',
+  'Show budgets for the Database department.',
+  'Show budgets for the Web Development department.',
+  'Show budgets for the Mobile Development department.',
+  'Show budgets for the Frontend department.',
+  'Show budgets for the Backend department.',
+  'Show budgets for the Fullstack department.',
+  'Show budgets for the DevOps department.',
+  'Show budgets for the Support department.',
+  'Show budgets for the Helpdesk department.',
+  'Show budgets for the Executive department.',
+  'Show budgets for the Board department.',
+  'Show budgets for the Audit department.',
+  'Show budgets for the Risk department.',
+  'Show budgets for the Legal Compliance department.',
+  'Show budgets for the Environmental department.',
+  'Show budgets for the Sustainability department.',
+  'Show budgets for the Innovation department.',
+  'Show budgets for the Partnerships department.',
+  'Show budgets for the Community department.',
+  'Show budgets for the Outreach department.',
+  'Show budgets for the Volunteer department.',
+  'Show budgets for the Alumni department.',
+  'Show budgets for the Student Affairs department.',
+  'Show budgets for the Faculty department.',
+  'Show budgets for the Research Grants department.',
+  'Show budgets for the Scholarships department.',
+  'Show budgets for the Fellowships department.',
+  'Show budgets for the Awards department.',
+  'Show budgets for the Events department.',
+  'Show budgets for the Conferences department.',
+  'Show budgets for the Workshops department.',
+  'Show budgets for the Seminars department.',
+  'Show budgets for the Training Programs department.',
+  'Show budgets for the Certification department.',
+  'Show budgets for the Licensing department.',
+  'Show budgets for the Accreditation department.',
+  'Show budgets for the Membership department.',
+  'Show budgets for the Sponsorship department.',
+  'Show budgets for the Donations department.',
+  'Show budgets for the Grants department.',
+  'Show budgets for the Endowments department.',
+  'Show budgets for the Investments department.',
+  'Show budgets for the Assets department.',
+  'Show budgets for the Liabilities department.',
+  'Show budgets for the Equity department.',
+  'Show budgets for the Revenue department.',
+  'Show budgets for the Expenses department.',
+  'Show budgets for the Profit department.',
+  'Show budgets for the Loss department.',
+  'Show budgets for the Cash department.',
+  'Show budgets for the Bank department.',
+  'Show budgets for the Treasury department.'
+];
+
+const run = async () => {
+  await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  console.log('Connected to MongoDB');
+
+  // For demonstration, just print the questions
+  questions.forEach((q, i) => {
+    console.log(`${i + 1}. ${q}`);
+  });
+
+  mongoose.connection.close();
+};
+
+run();

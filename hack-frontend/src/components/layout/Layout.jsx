@@ -122,73 +122,81 @@ const Layout = ({ children }) => {
             </motion.div>
 
             {/* Enhanced Navigation */}
-            <nav className="hidden md:flex space-x-2">
-              {navItems.map((item, index) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <motion.div
-                    key={item.name}
-                    className="relative"
-                    onHoverStart={() => setActiveHover(index)}
-                    onHoverEnd={() => setActiveHover(null)}
-                    whileHover={{ y: -2 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <Link
-                      to={item.href}
-                      className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden group ${
-                        isActive
-                          ? 'text-white shadow-lg'
-                          : 'text-textMuted hover:text-textPrimary'
-                      }`}
+            <nav className="hidden md:flex space-x-2 items-center">
+              {/* Section Heading */}
+              <span className="text-xs font-semibold text-textMuted mr-4 tracking-wide uppercase">
+                {isAdmin() ? 'Admin' : isDepartment() ? 'Department' : 'Public'} Menu
+              </span>
+              {/* Grouped Navigation Items */}
+              <div className="flex space-x-2">
+                {navItems.map((item, index) => {
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <motion.div
+                      key={item.name}
+                      className="relative"
+                      onHoverStart={() => setActiveHover(index)}
+                      onHoverEnd={() => setActiveHover(null)}
+                      whileHover={{ y: -2 }}
+                      transition={{ type: "spring", stiffness: 400 }}
                     >
-                      {/* Background gradient for active/hover */}
-                      {(isActive || activeHover === index) && (
-                        <motion.div
-                          layoutId={isActive ? "activeTab" : "hoverTab"}
-                          className={`absolute inset-0 bg-gradient-to-r ${item.color} rounded-xl`}
-                          initial={false}
-                          transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-                        />
-                      )}
-                      
-                      {/* Shimmer effect on hover */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full"
-                        transition={{ duration: 0.6 }}
-                      />
-                      
-                      <motion.div
-                        className="relative z-10"
-                        animate={isActive ? { rotate: [0, -5, 5, 0] } : {}}
-                        transition={{ duration: 0.5 }}
+                      <Link
+                        to={item.href}
+                        className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden group ${
+                          isActive
+                            ? 'text-white shadow-lg'
+                            : 'text-textMuted hover:text-textPrimary'
+                        }`}
                       >
-                        <item.icon className="w-4 h-4" />
-                      </motion.div>
-                      <span className="relative z-10">{item.name}</span>
-                      
-                      {/* Active indicator dot */}
-                      {isActive && (
+                        {/* Background gradient for active/hover */}
+                        {(isActive || activeHover === index) && (
+                          <motion.div
+                            layoutId={isActive ? "activeTab" : "hoverTab"}
+                            className={`absolute inset-0 bg-gradient-to-r ${item.color} rounded-xl`}
+                            initial={false}
+                            transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                          />
+                        )}
+                        {/* Shimmer effect on hover */}
                         <motion.div
-                          className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500 }}
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full"
+                          transition={{ duration: 0.6 }}
                         />
-                      )}
-                    </Link>
-                  </motion.div>
-                );
-              })}
+                        <motion.div
+                          className="relative z-10"
+                          animate={isActive ? { rotate: [0, -5, 5, 0] } : {}}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <item.icon className="w-4 h-4" />
+                        </motion.div>
+                        <span className="relative z-10">{item.name}</span>
+                        {/* Active indicator dot */}
+                        {isActive && (
+                          <motion.div
+                            className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500 }}
+                          />
+                        )}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </nav>
 
             {/* Enhanced User Menu */}
             <div className="flex items-center space-x-4">
-              {/* Currency Toggle - Always visible */}
-              <CurrencyToggle onCurrencyChange={(currency) => {
-                // Trigger page refresh or state update to reflect new currency
-                window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency }));
-              }} />
+              {/* Currency Toggle - Always visible, now night mode theme */}
+              <div className="bg-[#232326] border border-[#27272a] rounded-lg px-2 py-1 flex items-center shadow-md">
+                <CurrencyToggle
+                  onCurrencyChange={(currency) => {
+                    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency }));
+                  }}
+                  className="bg-[#232326] text-white px-3 py-2 rounded-md border-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
 
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">

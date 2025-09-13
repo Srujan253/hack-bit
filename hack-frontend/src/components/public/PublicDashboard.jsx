@@ -67,11 +67,11 @@ const PublicDashboard = () => {
     try {
       setLoading(true);
       const params = selectedYear ? { financialYear: selectedYear } : {};
-      const response = await publicAPI.getOverview(params);
+  const response = await publicAPI.getDashboard(params);
       
-      // Convert overview data to current currency
-      const convertedOverview = convertFinancialData(response.data, 'INR');
-      setOverview(convertedOverview);
+  // Convert overview data to current currency
+  const convertedOverview = convertFinancialData(response.data.overview, 'INR');
+  setOverview(convertedOverview);
     } catch (error) {
       console.error('Error fetching overview data:', error);
     } finally {

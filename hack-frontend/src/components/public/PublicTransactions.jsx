@@ -62,7 +62,7 @@ const PublicTransactions = () => {
         page: pagination.current,
         limit: pagination.limit
       };
-      const response = await publicAPI.getTransactions({ ...filters, ...params });
+  const response = await publicAPI.getPublicTransactions({ ...filters, ...params });
       const transactionData = response.data.transactions || [];
       // Convert transaction data to current currency
       const convertedTransactions = transactionData.map(transaction => 

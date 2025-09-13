@@ -11,6 +11,7 @@ import transactionRoutes from "./routes/transaction.js";
 import publicRoutes from "./routes/public.js";
 import alertRoutes from "./routes/alerts.js";
 import currencyRoutes from "./routes/currency.js";
+import chatRoutes from "./routes/chat.js";
 
 // Import models
 import User from "./models/User.js";
@@ -104,6 +105,7 @@ app.use("/api/transaction", transactionRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/currency", currencyRoutes);
+app.use("/api/chat", chatRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
@@ -201,7 +203,7 @@ process.on('SIGINT', async () => {
 });
 
 // Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📚 API Documentation: http://localhost:${PORT}/api`);

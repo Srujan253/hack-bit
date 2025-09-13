@@ -46,7 +46,7 @@ npm install
 
 3. Create `.env` file with the following variables:
 ```env
-PORT=5000
+PORT=5050
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 ADMIN_EMAIL=admin@fundtracker.gov.in
@@ -68,7 +68,7 @@ npm start
 
 ### Base URL
 ```
-http://localhost:5000/api
+http://localhost:5050/api
 ```
 
 ### Authentication Endpoints
@@ -205,7 +205,7 @@ http://localhost:5000/api
 
 ### Manual Testing
 1. Start the server: `npm run dev`
-2. Visit `http://localhost:5000/api` for API documentation
+2. Visit `http://localhost:5050/api` for API documentation
 3. Use Postman or curl to test endpoints
 
 ### Default Admin Credentials
@@ -217,7 +217,7 @@ http://localhost:5000/api
 ### Environment Variables for Production
 ```env
 NODE_ENV=production
-PORT=5000
+PORT=5050
 MONGO_URI=your_production_mongodb_uri
 JWT_SECRET=your_strong_jwt_secret
 FRONTEND_URL=your_frontend_domain
