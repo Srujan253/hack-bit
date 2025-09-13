@@ -10,6 +10,7 @@ import budgetRoutes from "./routes/budget.js";
 import transactionRoutes from "./routes/transaction.js";
 import publicRoutes from "./routes/public.js";
 import alertRoutes from "./routes/alerts.js";
+import currencyRoutes from "./routes/currency.js";
 
 // Import models
 import User from "./models/User.js";
@@ -102,6 +103,7 @@ app.use("/api/budget", budgetRoutes);
 app.use("/api/transaction", transactionRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/alerts", alertRoutes);
+app.use("/api/currency", currencyRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import { formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -20,6 +21,7 @@ const staggerContainer = {
 };
 
 const PublicTransactions = () => {
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -39,6 +41,15 @@ const PublicTransactions = () => {
 
   useEffect(() => {
     fetchTransactions();
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchTransactions();
+    };
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
+  }, []);
+
+  useEffect(() => {
     fetchCategories();
     fetchDepartments();
   }, [filters, pagination.current]);
@@ -51,8 +62,13 @@ const PublicTransactions = () => {
         page: pagination.current,
         limit: pagination.limit
       };
-      const response = await publicAPI.getPublicTransactions(params);
-      setTransactions(response.data.transactions);
+      const response = await publicAPI.getTransactions({ ...filters, ...params });
+      const transactionData = response.data.transactions || [];
+      // Convert transaction data to current currency
+      const convertedTransactions = transactionData.map(transaction => 
+        convertFinancialData(transaction, 'INR')
+      );
+      setTransactions(convertedTransactions);
       setPagination(prev => ({
         ...prev,
         total: response.data.pagination.total,

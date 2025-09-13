@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CurrencyDollarIcon, DocumentTextIcon, ClockIcon, CheckCircleIcon, ArrowTrendingUpIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { departmentAPI } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
 import { useAuthStore } from '../../store/authStore';
+import useCurrencyStore from '../../store/currencyStore';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -24,6 +25,7 @@ const staggerContainer = {
 const DepartmentDashboard = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [stats, setStats] = useState({
     totalBudget: 0,
     spentAmount: 0,
@@ -36,6 +38,14 @@ const DepartmentDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchDashboardData();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, []);
 
   const fetchDashboardData = async () => {
@@ -61,22 +71,32 @@ const DepartmentDashboard = () => {
       console.log('Budgets API Response:', budgetsResponse.data);
       const departmentBudgets = budgetsResponse.data.budgets || [];
       console.log('Department Budgets:', departmentBudgets);
-      setBudgets(departmentBudgets);
+      
+      // Convert budget data to current currency
+      const convertedBudgets = departmentBudgets.map(budget => 
+        convertFinancialData(budget, 'INR')
+      );
+      setBudgets(convertedBudgets);
 
       // Fetch transaction history
       const transactionsResponse = await departmentAPI.getTransactionHistory({ limit: 5 });
       const transactions = transactionsResponse.data.transactions || [];
-      setRecentTransactions(transactions);
+      
+      // Convert transaction data to current currency
+      const convertedTransactions = transactions.map(transaction => 
+        convertFinancialData(transaction, 'INR')
+      );
+      setRecentTransactions(convertedTransactions);
 
-      // Calculate stats from budgets and transactions
-      const totalBudget = departmentBudgets.reduce((sum, budget) => 
+      // Calculate stats from converted budgets and transactions
+      const totalBudget = convertedBudgets.reduce((sum, budget) => 
         sum + (budget.myAllocation?.allocated || 0), 0);
       
-      const totalSpent = departmentBudgets.reduce((sum, budget) => 
+      const totalSpent = convertedBudgets.reduce((sum, budget) => 
         sum + (budget.myAllocation?.spent || 0), 0);
 
-      const pendingCount = transactions.filter(t => t.status === 'pending').length;
-      const approvedCount = transactions.filter(t => t.status === 'approved' || t.status === 'completed').length;
+      const pendingCount = convertedTransactions.filter(t => t.status === 'pending').length;
+      const approvedCount = convertedTransactions.filter(t => t.status === 'approved' || t.status === 'completed').length;
 
       setStats({
         totalBudget,

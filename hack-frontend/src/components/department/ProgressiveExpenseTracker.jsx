@@ -10,11 +10,14 @@ import {
   ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 import { departmentAPI } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import toast from 'react-hot-toast';
 
 const ProgressiveExpenseTracker = () => {
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [budgets, setBudgets] = useState([]);
+  const [allocation, setAllocation] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,14 +25,32 @@ const ProgressiveExpenseTracker = () => {
   useEffect(() => {
     fetchMyBudgets();
     fetchTransactionHistory();
+    fetchAllocation();
+
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchMyBudgets();
+      fetchTransactionHistory();
+      fetchAllocation();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, []);
 
   const fetchMyBudgets = async () => {
     try {
       const response = await departmentAPI.getMyBudgets();
-      setBudgets(response.data.budgets);
-      if (response.data.budgets.length > 0) {
-        setSelectedBudget(response.data.budgets[0]);
+      const budgetData = response.data.budgets || [];
+      
+      // Convert budget data to current currency
+      const convertedBudgets = budgetData.map(budget => 
+        convertFinancialData(budget, 'INR')
+      );
+      setBudgets(convertedBudgets);
+      
+      if (convertedBudgets.length > 0) {
+        setSelectedBudget(convertedBudgets[0]);
       }
     } catch (error) {
       toast.error('Failed to fetch budgets');
@@ -41,9 +62,28 @@ const ProgressiveExpenseTracker = () => {
   const fetchTransactionHistory = async () => {
     try {
       const response = await departmentAPI.getTransactionHistory();
-      setTransactions(response.data.transactions);
+      const transactionData = response.data.transactions || [];
+      
+      // Convert transaction data to current currency
+      const convertedTransactions = transactionData.map(transaction => 
+        convertFinancialData(transaction, 'INR')
+      );
+      setTransactions(convertedTransactions);
     } catch (error) {
       console.error('Failed to fetch transactions');
+    }
+  };
+
+  const fetchAllocation = async () => {
+    try {
+      const response = await departmentAPI.getAllocation();
+      const allocationData = response.data.allocation || {};
+      
+      // Convert allocation data to current currency
+      const convertedAllocation = convertFinancialData(allocationData, 'INR');
+      setAllocation(convertedAllocation);
+    } catch (error) {
+      console.error('Failed to fetch allocation');
     }
   };
 
@@ -62,7 +102,7 @@ const ProgressiveExpenseTracker = () => {
       {
         id: 1,
         title: 'Budget Allocated',
-        description: `₹${formatCurrency(allocation.allocated)} allocated`,
+        description: `${formatCurrency(allocation.allocated)} allocated`,
         completed: allocation.allocated > 0,
         icon: CurrencyDollarIcon
       },

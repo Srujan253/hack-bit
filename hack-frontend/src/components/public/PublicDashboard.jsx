@@ -9,7 +9,8 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
-import { formatCurrency, formatDate } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import { motion } from 'framer-motion';
 
 const fadeUp = {
@@ -40,24 +41,39 @@ const slideInRight = {
 };
 
 const PublicDashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
+  const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState('');
   const [financialYears, setFinancialYears] = useState([]);
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchOverview();
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchOverview();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
+  }, []);
+
+  useEffect(() => {
     fetchFinancialYears();
   }, [selectedYear]);
 
-  const fetchDashboardData = async () => {
+  const fetchOverview = async () => {
     try {
       setLoading(true);
       const params = selectedYear ? { financialYear: selectedYear } : {};
-      const response = await publicAPI.getDashboard(params);
-      setDashboardData(response.data);
+      const response = await publicAPI.getOverview(params);
+      
+      // Convert overview data to current currency
+      const convertedOverview = convertFinancialData(response.data, 'INR');
+      setOverview(convertedOverview);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('Error fetching overview data:', error);
     } finally {
       setLoading(false);
     }
@@ -80,7 +96,7 @@ const PublicDashboard = () => {
     );
   }
 
-  const { overview, categoryBreakdown, recentTransactions, departmentSpending } = dashboardData || {};
+  const { categoryBreakdown, recentTransactions, departmentSpending } = overview || {};
 
   return (
     <motion.div className="space-y-8" initial="initial" animate="animate" exit="exit" variants={fadeUp}>

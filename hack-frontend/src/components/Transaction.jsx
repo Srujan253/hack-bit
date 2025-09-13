@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FileSearch, Search } from 'lucide-react';
 import { transactionAPI } from '../services/api';
-import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../utils/helpers';
+import { formatDate } from '../utils/helpers';
+import useCurrencyStore from '../store/currencyStore';
+import { getPriorityColor } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import Card from './common/Card';

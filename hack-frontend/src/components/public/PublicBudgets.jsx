@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
+import { formatDate, getStatusColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -21,6 +22,7 @@ const staggerContainer = {
 };
 
 const PublicBudgets = () => {
+  const { formatCurrency, currentCurrency, convertFinancialData } = useCurrencyStore();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -42,6 +44,16 @@ const PublicBudgets = () => {
     fetchFinancialYears();
   }, [filters, pagination.current]);
 
+  // Listen for currency changes and refresh data
+  useEffect(() => {
+    const handleCurrencyChange = () => {
+      fetchBudgets();
+    };
+
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
+  }, []);
+
   const fetchBudgets = async () => {
     try {
       setLoading(true);
@@ -50,8 +62,13 @@ const PublicBudgets = () => {
         page: pagination.current,
         limit: pagination.limit
       };
+      
       const response = await publicAPI.getPublicBudgets(params);
-      setBudgets(response.data.budgets);
+      
+      // Convert financial data to current currency
+      const convertedBudgets = await convertFinancialData(response.data.budgets, 'INR');
+      setBudgets(convertedBudgets);
+      
       setPagination(prev => ({
         ...prev,
         total: response.data.pagination.total,

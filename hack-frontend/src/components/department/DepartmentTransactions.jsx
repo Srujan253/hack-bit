@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Check, X, Eye } from 'lucide-react';
 import { transactionAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import { formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import GradientHeader from '../common/GradientHeader';
@@ -10,6 +11,7 @@ import Icon from '../common/Icon';
 import Card from '../common/Card';
 
 const DepartmentTransactions = () => {
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -24,13 +26,24 @@ const DepartmentTransactions = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [filters]);
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchTransactions();
+    };
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
+  }, []);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await transactionAPI.getTransactions(filters);
-      setTransactions(response.data.transactions);
+      const response = await transactionAPI.getTransactions({ ...filters });
+      const transactionData = response.data.transactions || [];
+      // Convert transaction data to current currency
+      const convertedTransactions = transactionData.map(transaction => 
+        convertFinancialData(transaction, 'INR')
+      );
+      setTransactions(convertedTransactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {

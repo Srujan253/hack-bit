@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import useAuthStore from '../../store/authStore';
 import toast from 'react-hot-toast';
+import CurrencyToggle from '../common/CurrencyToggle';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -183,6 +184,12 @@ const Layout = ({ children }) => {
 
             {/* Enhanced User Menu */}
             <div className="flex items-center space-x-4">
+              {/* Currency Toggle - Always visible */}
+              <CurrencyToggle onCurrencyChange={(currency) => {
+                // Trigger page refresh or state update to reflect new currency
+                window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency }));
+              }} />
+
               {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
                   {/* Notification Bell */}

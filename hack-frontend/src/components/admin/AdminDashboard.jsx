@@ -9,7 +9,8 @@ import {
   Clock,
 } from 'lucide-react';
 import { budgetAPI, transactionAPI, authAPI } from '../../services/api';
-import { formatCurrency, formatDate, getPriorityColor } from '../../utils/helpers';
+import { formatDate, getPriorityColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import StatCard from '../common/StatCard';
 import GradientHeader from '../common/GradientHeader';
 import ActionButton from '../common/Button';
@@ -30,6 +31,7 @@ const pageTransition = {
 };
 
 const AdminDashboard = () => {
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [stats, setStats] = useState({
     budgets: null,
     transactions: null,
@@ -42,6 +44,14 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchDashboardData();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, []);
 
   const fetchDashboardData = async () => {
@@ -82,7 +92,13 @@ const AdminDashboard = () => {
 
       try {
         pendingTransactionsData = await transactionAPI.getTransactions({ status: 'pending', limit: 5 });
-        setRecentTransactions(pendingTransactionsData.data.transactions || []);
+        const transactions = pendingTransactionsData.data.transactions || [];
+        
+        // Convert transaction data to current currency
+        const convertedTransactions = transactions.map(transaction => 
+          convertFinancialData(transaction, 'INR')
+        );
+        setRecentTransactions(convertedTransactions);
       } catch (error) {
         console.error('Error fetching recent transactions:', error);
       }
@@ -93,9 +109,16 @@ const AdminDashboard = () => {
       console.log('Pending approvals response:', pendingApprovalsData);
       console.log('Pending transactions response:', pendingTransactionsData);
 
+      // Convert financial data to current currency
+      const budgetData = budgetStats.data?.overall || budgetStats.data;
+      const transactionData = transactionStats.data?.overall || transactionStats.data;
+      
+      const convertedBudgetData = budgetData ? convertFinancialData(budgetData, 'INR') : null;
+      const convertedTransactionData = transactionData ? convertFinancialData(transactionData, 'INR') : null;
+      
       setStats({
-        budgets: budgetStats.data?.overall || budgetStats.data,
-        transactions: transactionStats.data?.overall || transactionStats.data,
+        budgets: convertedBudgetData,
+        transactions: convertedTransactionData,
         pendingApprovals: Array.isArray(pendingApprovalsData.data?.data) ? pendingApprovalsData.data.data.length : 
                          Array.isArray(pendingApprovalsData.data) ? pendingApprovalsData.data.length : 0,
         pendingTransactions: pendingTransactionsData.data?.transactions?.length || 0

@@ -154,6 +154,14 @@ export const publicAPI = {
   search: (params) => api.get('/public/search', { params }),
 };
 
+// Currency API
+export const currencyAPI = {
+  getCurrencyInfo: () => api.get('/currency/info'),
+  convertCurrency: (data) => api.post('/currency/convert', data),
+  getUserPreference: () => api.get('/currency/preference'),
+  updateUserPreference: (currency) => api.put('/currency/preference', { currency })
+};
+
 // Alert API calls
 export const alertAPI = {
   // Get alerts with filters

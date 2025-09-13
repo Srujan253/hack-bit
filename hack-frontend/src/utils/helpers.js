@@ -1,11 +1,29 @@
-// Currency formatting
-export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount || 0);
+// Currency formatting - now supports dynamic currency
+export const formatCurrency = (amount, currency = 'INR') => {
+  const formatOptions = {
+    INR: {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    },
+    USD: {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  };
+
+  const options = formatOptions[currency] || formatOptions.INR;
+  
+  try {
+    return new Intl.NumberFormat('en-US', options).format(amount || 0);
+  } catch (error) {
+    // Fallback formatting
+    const symbols = { INR: '₹', USD: '$' };
+    return `${symbols[currency] || '₹'}${(amount || 0).toLocaleString()}`;
+  }
 };
 
 // Date formatting

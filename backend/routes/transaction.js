@@ -75,6 +75,29 @@ router.post('/submit', verifyToken, verifyAdminOrDepartment, triggerAnomalyDetec
       { path: 'requestedBy', select: 'email departmentName' }
     ]);
 
+    // Record transaction submission on blockchain
+    try {
+      await blockchainService.addTransaction({
+        transactionId: transaction._id,
+        type: 'expense_submission',
+        data: {
+          transactionId: transaction._id,
+          budgetId: transaction.budgetId,
+          departmentId: transaction.departmentId,
+          amount: transaction.amount,
+          description: transaction.description,
+          category: transaction.category,
+          vendorName: transaction.vendorName,
+          submittedBy: req.user._id,
+          timestamp: new Date()
+        }
+      });
+      console.log('Transaction submission recorded on blockchain');
+    } catch (blockchainError) {
+      console.error('Failed to record on blockchain:', blockchainError);
+      // Continue execution even if blockchain fails
+    }
+
     res.status(201).json({
       message: 'Expense request submitted successfully',
       transaction
@@ -234,6 +257,27 @@ router.put('/:transactionId/review', verifyToken, verifyAdmin, checkBudgetThresh
       }
     } else {
       transaction.reject(req.user._id, comments);
+      
+      // Record rejection on blockchain
+      try {
+        await blockchainService.addTransaction({
+          transactionId: transaction._id,
+          type: 'expense_rejection',
+          data: {
+            transactionId: transaction._id,
+            budgetId: transaction.budgetId._id,
+            departmentId: transaction.departmentId._id,
+            amount: transaction.amount,
+            description: transaction.description,
+            rejectedBy: req.user._id,
+            rejectionComments: comments,
+            timestamp: new Date()
+          }
+        });
+        console.log('Transaction rejection recorded on blockchain');
+      } catch (blockchainError) {
+        console.error('Failed to record rejection on blockchain:', blockchainError);
+      }
     }
 
     await transaction.save();
@@ -266,6 +310,24 @@ router.put('/:transactionId/complete', verifyToken, verifyAdmin, async (req, res
     transaction.status = 'completed';
     transaction.completedAt = new Date();
     await transaction.save();
+
+    // Record completion on blockchain
+    try {
+      await blockchainService.addTransaction({
+        transactionId: transaction._id,
+        type: 'transaction_completion',
+        data: {
+          transactionId: transaction._id,
+          finalAmount: transaction.amount,
+          completedBy: req.user._id,
+          completedAt: new Date(),
+          timestamp: new Date()
+        }
+      });
+      console.log('Transaction completion recorded on blockchain');
+    } catch (blockchainError) {
+      console.error('Failed to record completion on blockchain:', blockchainError);
+    }
 
     res.json({
       message: 'Transaction marked as completed',

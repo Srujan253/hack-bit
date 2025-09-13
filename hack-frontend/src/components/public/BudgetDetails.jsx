@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeftIcon, ChartBarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import { formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -21,6 +22,7 @@ const staggerContainer = {
 };
 
 const BudgetDetails = () => {
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const { id } = useParams();
   const [budget, setBudget] = useState(null);
   const [transactions, setTransactions] = useState([]);
@@ -28,14 +30,29 @@ const BudgetDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBudgetDetails();
+    if (id) {
+      fetchBudgetDetails();
+    }
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      if (id) {
+        fetchBudgetDetails();
+      }
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, [id]);
 
   const fetchBudgetDetails = async () => {
     try {
       setLoading(true);
       const response = await publicAPI.getPublicBudgetById(id);
-      setBudget(response.data.budget);
+      
+      // Convert budget data to current currency
+      const convertedBudget = convertFinancialData(response.data, 'INR');
+      setBudget(convertedBudget);
       setTransactions(response.data.transactions);
       setDepartmentSpending(response.data.departmentSpending);
     } catch (error) {

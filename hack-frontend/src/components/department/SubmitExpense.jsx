@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useCurrencyStore from '../../store/currencyStore';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { transactionAPI, departmentAPI } from '../../services/api';
@@ -11,6 +12,7 @@ import Icon from '../common/Icon';
 
 const SubmitExpense = () => {
   const navigate = useNavigate();
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -37,18 +39,29 @@ const SubmitExpense = () => {
 
   useEffect(() => {
     fetchAvailableBudgets();
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchAvailableBudgets();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, []);
 
   const fetchAvailableBudgets = async () => {
     try {
       setLoading(true);
       const response = await departmentAPI.getMyBudgets();
-      console.log('Budgets response:', response.data);
-      const departmentBudgets = response.data.budgets || [];
+      const budgetData = response.data.budgets || [];
       
-      // Filter only active budgets with remaining allocation
-      const availableBudgets = departmentBudgets.filter(budget => 
-        budget.status === 'active' && 
+      // Convert budget data to current currency
+      const convertedBudgets = budgetData.map(budget => 
+        convertFinancialData(budget, 'INR')
+      );
+      
+      // Filter for budgets with remaining allocation
+      const availableBudgets = convertedBudgets.filter(budget => 
         budget.myAllocation && 
         budget.myAllocation.remaining > 0
       );
@@ -80,6 +93,9 @@ const SubmitExpense = () => {
   };
 
   const selectedBudget = budgets.find(b => b._id === watch('budgetId'));
+  
+  // Debug selected budget data
+  console.log('Selected budget data:', selectedBudget);
 
   return (
     <motion.div
@@ -156,20 +172,25 @@ const SubmitExpense = () => {
 
           {/* Budget Info */}
           {selectedBudget && (
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h4 className="font-medium text-blue-900 mb-2">Selected Budget Information</h4>
+            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+              <h4 className="font-medium text-slate-200 mb-2">Selected Budget Information</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-blue-700 font-medium">Total Budget:</span>
-                  <span className="ml-2 text-blue-900">₹{selectedBudget.totalAmount?.toLocaleString()}</span>
+                  <span className="text-slate-300 font-medium">Total Budget:</span>
+                  <span className="ml-2 text-white">
+                    {formatCurrency(selectedBudget.totalAmount || selectedBudget.budgetAmount || selectedBudget.amount || 0)}
+                  </span>
+                  <div className="text-xs text-slate-400 mt-1">
+                    Debug: totalAmount={selectedBudget.totalAmount}, amount={selectedBudget.amount}
+                  </div>
                 </div>
                 <div>
-                  <span className="text-blue-700 font-medium">Allocated:</span>
-                  <span className="ml-2 text-blue-900">₹{selectedBudget.myAllocation?.allocated?.toLocaleString()}</span>
+                  <span className="text-slate-300 font-medium">Allocated:</span>
+                  <span className="ml-2 text-white">{formatCurrency(selectedBudget.myAllocation?.allocated || 0)}</span>
                 </div>
                 <div>
-                  <span className="text-blue-700 font-medium">Remaining:</span>
-                  <span className="ml-2 text-blue-900">₹{selectedBudget.myAllocation?.remaining?.toLocaleString()}</span>
+                  <span className="text-slate-300 font-medium">Remaining:</span>
+                  <span className="ml-2 text-white">{formatCurrency(selectedBudget.myAllocation?.remaining || 0)}</span>
                 </div>
               </div>
             </div>

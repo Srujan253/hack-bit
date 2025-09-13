@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import useAuthStore from './store/authStore';
+import useCurrencyStore from './store/currencyStore';
 
 // Import components
 import PublicDashboard from './components/public/PublicDashboard';
@@ -34,6 +35,12 @@ import AlertBanner from './components/common/AlertBanner';
 
 export default function App() {
   const { isAuthenticated, user } = useAuthStore();
+  const { init: initCurrency } = useCurrencyStore();
+
+  useEffect(() => {
+    // Initialize currency store when app loads
+    initCurrency();
+  }, [initCurrency]);
 
   return (
     <ErrorBoundary>

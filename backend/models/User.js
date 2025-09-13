@@ -47,9 +47,12 @@ const userSchema = new mongoose.Schema({
   },
   isApproved: {
     type: Boolean,
-    default: function() {
-      return this.role === 'admin';
-    }
+    default: false
+  },
+  preferredCurrency: {
+    type: String,
+    enum: ['INR', 'USD'],
+    default: 'INR'
   },
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,

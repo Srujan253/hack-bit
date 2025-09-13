@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, BarChart3 } from 'lucide-react';
 import { budgetAPI } from '../../services/api';
-import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
+import { formatDate, getStatusColor } from '../../utils/helpers';
+import useCurrencyStore from '../../store/currencyStore';
 import { useAuthStore } from '../../store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import GradientHeader from '../common/GradientHeader';
@@ -12,6 +13,7 @@ import Card from '../common/Card';
 
 const DepartmentBudgets = () => {
   const { user } = useAuthStore();
+  const { formatCurrency, convertFinancialData } = useCurrencyStore();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -22,13 +24,27 @@ const DepartmentBudgets = () => {
 
   useEffect(() => {
     fetchBudgets();
+    
+    // Listen for currency changes
+    const handleCurrencyChange = () => {
+      fetchBudgets();
+    };
+    
+    window.addEventListener('currencyChanged', handleCurrencyChange);
+    return () => window.removeEventListener('currencyChanged', handleCurrencyChange);
   }, [filters]);
 
   const fetchBudgets = async () => {
     try {
       setLoading(true);
-      const response = await budgetAPI.getDepartmentBudgets(filters);
-      setBudgets(response.data.budgets);
+      const response = await budgetAPI.getDepartmentBudgets();
+      const budgetData = response.data.budgets || [];
+      
+      // Convert budget data to current currency
+      const convertedBudgets = budgetData.map(budget => 
+        convertFinancialData(budget, 'INR')
+      );
+      setBudgets(convertedBudgets);
     } catch (error) {
       console.error('Error fetching budgets:', error);
     } finally {
