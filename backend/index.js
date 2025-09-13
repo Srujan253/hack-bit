@@ -9,12 +9,14 @@ import authRoutes from "./routes/auth.js";
 import budgetRoutes from "./routes/budget.js";
 import transactionRoutes from "./routes/transaction.js";
 import publicRoutes from "./routes/public.js";
+import alertRoutes from "./routes/alerts.js";
 
 // Import models
 import User from "./models/User.js";
 
 // Import utilities
 import blockchainService from "./utils/blockchain.js";
+import schedulerService from "./utils/scheduler.js";
 
 dotenv.config();
 
@@ -56,6 +58,14 @@ mongoose.connect(process.env.MONGO_URI, {
     
     // Create default admin user
     await createDefaultAdmin();
+    
+    // Start scheduled tasks
+    try {
+        schedulerService.startScheduledTasks();
+        console.log("✅ Scheduled tasks started");
+    } catch (error) {
+        console.error("❌ Scheduler initialization failed:", error);
+    }
 })
 .catch((err) => {
     console.error("❌ MongoDB connection failed:", err);
@@ -91,6 +101,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/budget", budgetRoutes);
 app.use("/api/transaction", transactionRoutes);
 app.use("/api/public", publicRoutes);
+app.use("/api/alerts", alertRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
@@ -103,7 +114,8 @@ app.get("/", (req, res) => {
             auth: "/api/auth",
             budget: "/api/budget", 
             transaction: "/api/transaction",
-            public: "/api/public"
+            public: "/api/public",
+            alerts: "/api/alerts"
         }
     });
 });
@@ -174,7 +186,7 @@ app.use((err, req, res, next) => {
 app.use((req, res) => {
     res.status(404).json({
         message: "Route not found",
-        availableRoutes: ["/api/auth", "/api/budget", "/api/transaction", "/api/public"]
+        availableRoutes: ["/api/auth", "/api/budget", "/api/transaction", "/api/public", "/api/alerts"]
     });
 });
 

@@ -87,11 +87,18 @@ const AdminDashboard = () => {
         console.error('Error fetching recent transactions:', error);
       }
 
+      // Log the actual data structure to debug
+      console.log('Budget stats response:', budgetStats);
+      console.log('Transaction stats response:', transactionStats);
+      console.log('Pending approvals response:', pendingApprovalsData);
+      console.log('Pending transactions response:', pendingTransactionsData);
+
       setStats({
-        budgets: budgetStats.data,
-        transactions: transactionStats.data,
-        pendingApprovals: Array.isArray(pendingApprovalsData.data.data) ? pendingApprovalsData.data.data.length : 0,
-        pendingTransactions: pendingTransactionsData.data.transactions?.length || 0
+        budgets: budgetStats.data?.overall || budgetStats.data,
+        transactions: transactionStats.data?.overall || transactionStats.data,
+        pendingApprovals: Array.isArray(pendingApprovalsData.data?.data) ? pendingApprovalsData.data.data.length : 
+                         Array.isArray(pendingApprovalsData.data) ? pendingApprovalsData.data.length : 0,
+        pendingTransactions: pendingTransactionsData.data?.transactions?.length || 0
       });
 
       setPendingApprovals(Array.isArray(pendingApprovalsData.data.data) ? pendingApprovalsData.data.data : []);
@@ -156,7 +163,7 @@ const AdminDashboard = () => {
           <StatCard
             icon={DollarSign}
             title="Total Budgets"
-            value={stats.budgets?.totalBudgets || 0}
+            value={stats.budgets?.totalBudgets || stats.budgets?.count || 0}
             subtitle="Active budgets"
             color="emerald"
           />
@@ -177,7 +184,7 @@ const AdminDashboard = () => {
           <StatCard
             icon={Clock}
             title="Total Spent"
-            value={formatCurrency(stats.transactions?.totalSpent || 0)}
+            value={formatCurrency(stats.transactions?.totalAmount || stats.transactions?.totalSpent || 0)}
             subtitle="This month"
             color="gold"
           />
@@ -251,19 +258,19 @@ const AdminDashboard = () => {
           <h3 className="text-lg font-semibold text-textPrimary mb-4">Transaction Status Overview</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4 bg-surface/50 rounded-lg border border-border">
-              <p className="text-2xl font-bold text-gold">{stats.transactions?.pendingCount || 0}</p>
+              <p className="text-2xl font-bold text-gold">{stats.transactions?.pendingCount || stats.transactions?.statusCounts?.pending || 0}</p>
               <p className="text-sm text-textMuted">Pending</p>
             </div>
             <div className="p-4 bg-surface/50 rounded-lg border border-border">
-              <p className="text-2xl font-bold text-success">{stats.transactions?.approvedCount || 0}</p>
+              <p className="text-2xl font-bold text-success">{stats.transactions?.approvedCount || stats.transactions?.statusCounts?.approved || 0}</p>
               <p className="text-sm text-textMuted">Approved</p>
             </div>
             <div className="p-4 bg-surface/50 rounded-lg border border-border">
-              <p className="text-2xl font-bold text-blue-500">{stats.transactions?.completedCount || 0}</p>
+              <p className="text-2xl font-bold text-blue-500">{stats.transactions?.completedCount || stats.transactions?.statusCounts?.completed || 0}</p>
               <p className="text-sm text-textMuted">Completed</p>
             </div>
             <div className="p-4 bg-surface/50 rounded-lg border border-border">
-              <p className="text-2xl font-bold text-danger">{stats.transactions?.rejectedCount || 0}</p>
+              <p className="text-2xl font-bold text-danger">{stats.transactions?.rejectedCount || stats.transactions?.statusCounts?.rejected || 0}</p>
               <p className="text-sm text-textMuted">Rejected</p>
             </div>
           </div>

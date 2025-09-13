@@ -3,6 +3,7 @@ import Budget from '../models/Budget.js';
 import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import { verifyToken, verifyAdmin, verifyAdminOrDepartment } from '../middleware/auth.js';
+import { triggerAnomalyDetection } from '../middleware/anomalyMiddleware.js';
 import blockchainService from '../utils/blockchain.js';
 
 const router = express.Router();
@@ -130,7 +131,7 @@ router.get('/:budgetId', async (req, res) => {
 });
 
 // Allocate budget to department (Admin only)
-router.post('/:budgetId/allocate', verifyToken, verifyAdmin, async (req, res) => {
+router.post('/:budgetId/allocate', verifyToken, verifyAdmin, triggerAnomalyDetection, async (req, res) => {
   try {
     console.log('Budget allocation request:', {
       budgetId: req.params.budgetId,

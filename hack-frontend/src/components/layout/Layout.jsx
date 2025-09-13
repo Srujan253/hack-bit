@@ -57,6 +57,7 @@ const Layout = ({ children }) => {
     { name: 'Allocate Budget', href: '/admin/allocate-budget', icon: BanknotesIcon, color: 'from-yellow-500 to-yellow-600' },
     { name: 'Transactions', href: '/admin/transactions', icon: DocumentTextIcon, color: 'from-purple-500 to-purple-600' },
     { name: 'Approvals', href: '/admin/approvals', icon: UserGroupIcon, color: 'from-red-500 to-red-600' },
+    { name: 'Alerts', href: '/admin/alerts', icon: Cog6ToothIcon, color: 'from-orange-500 to-orange-600' },
   ];
 
   // Department navigation items

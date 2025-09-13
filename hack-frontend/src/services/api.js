@@ -154,4 +154,28 @@ export const publicAPI = {
   search: (params) => api.get('/public/search', { params }),
 };
 
+// Alert API calls
+export const alertAPI = {
+  // Get alerts with filters
+  getAlerts: (params) => api.get('/alerts', { params }),
+  
+  // Get alert statistics (Admin only)
+  getAlertStatistics: (params) => api.get('/alerts/statistics', { params }),
+  
+  // Run anomaly detection manually (Admin only)
+  runAnomalyDetection: (data) => api.post('/alerts/detect', data),
+  
+  // Acknowledge an alert
+  acknowledgeAlert: (alertId) => api.put(`/alerts/${alertId}/acknowledge`),
+  
+  // Resolve an alert (Admin only)
+  resolveAlert: (alertId, comments) => api.put(`/alerts/${alertId}/resolve`, { comments }),
+  
+  // Dismiss an alert (Admin only)
+  dismissAlert: (alertId, reason) => api.put(`/alerts/${alertId}/dismiss`, { reason }),
+  
+  // Get alert details
+  getAlertById: (alertId) => api.get(`/alerts/${alertId}`)
+};
+
 export default api;

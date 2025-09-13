@@ -20,6 +20,7 @@ import AdminBudgets from './components/admin/AdminBudgets';
 import AdminTransactions from './components/admin/AdminTransactions';
 import AdminApprovals from './components/admin/AdminApprovals';
 import BudgetAllocation from './components/admin/BudgetAllocation';
+import AlertManagement from './components/admin/AlertManagement';
 
 import DepartmentDashboard from './components/department/DepartmentDashboard';
 import DepartmentBudgets from './components/department/DepartmentBudgets';
@@ -29,6 +30,7 @@ import ProgressiveExpenseTracker from './components/department/ProgressiveExpens
 
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AlertBanner from './components/common/AlertBanner';
 
 export default function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -37,6 +39,7 @@ export default function App() {
     <ErrorBoundary>
       <Router>
         <div className="min-h-screen bg-background">
+          {isAuthenticated && <AlertBanner userRole={user?.role} />}
         <Toaster 
           position="top-right"
           toastOptions={{
@@ -85,6 +88,11 @@ export default function App() {
           <Route path="/admin/allocate-budget" element={
             <ProtectedRoute requiredRole="admin">
               <Layout><BudgetAllocation /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/alerts" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><AlertManagement /></Layout>
             </ProtectedRoute>
           } />
           

@@ -2,13 +2,14 @@ import express from 'express';
 import Transaction from '../models/Transaction.js';
 import Budget from '../models/Budget.js';
 import User from '../models/User.js';
-import { verifyToken, verifyAdmin, verifyDepartment, verifyAdminOrDepartment } from '../middleware/auth.js';
+import { verifyToken, verifyAdmin, verifyAdminOrDepartment, verifyDepartment } from '../middleware/auth.js';
+import { triggerAnomalyDetection, checkBudgetThresholds } from '../middleware/anomalyMiddleware.js';
 import blockchainService from '../utils/blockchain.js';
 
 const router = express.Router();
 
 // Submit expense request (Department only)
-router.post('/submit', verifyToken, verifyDepartment, async (req, res) => {
+router.post('/submit', verifyToken, verifyAdminOrDepartment, triggerAnomalyDetection, async (req, res) => {
   try {
     const {
       budgetId,
@@ -178,7 +179,7 @@ router.get('/:transactionId', verifyToken, verifyAdminOrDepartment, async (req, 
 });
 
 // Approve/Reject transaction (Admin only)
-router.put('/:transactionId/review', verifyToken, verifyAdmin, async (req, res) => {
+router.put('/:transactionId/review', verifyToken, verifyAdmin, checkBudgetThresholds, triggerAnomalyDetection, async (req, res) => {
   try {
     const { action, comments } = req.body; // action: 'approve' or 'reject'
 
