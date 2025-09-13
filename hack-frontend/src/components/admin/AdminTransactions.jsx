@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { transactionAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
@@ -245,8 +246,14 @@ const AdminTransactions = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {transactions.map((transaction) => (
-                  <tr key={transaction._id} className="hover:bg-gray-50">
+                {transactions.map((transaction, index) => (
+                  <motion.tr
+                    key={transaction._id}
+                    className="hover:bg-gray-50"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{transaction.transactionId}</div>
@@ -312,7 +319,7 @@ const AdminTransactions = () => {
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

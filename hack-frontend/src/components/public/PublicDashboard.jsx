@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  CurrencyDollarIcon, 
-  DocumentTextIcon, 
+import {
+  CurrencyDollarIcon,
+  DocumentTextIcon,
   BuildingOfficeIcon,
   ChartBarIcon,
   ArrowTrendingUpIcon,
@@ -17,6 +17,26 @@ const fadeUp = {
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: 20 },
   transition: { duration: 0.5, ease: 'easeOut' }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const slideInLeft = {
+  initial: { opacity: 0, x: -50 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' }
+};
+
+const slideInRight = {
+  initial: { opacity: 0, x: 50 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: 'easeOut' }
 };
 
 const PublicDashboard = () => {
@@ -65,17 +85,22 @@ const PublicDashboard = () => {
   return (
     <motion.div className="space-y-8" initial="initial" animate="animate" exit="exit" variants={fadeUp}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-8 text-textPrimary">
+      <motion.div
+        className="bg-gradient-to-r from-primary to-secondary rounded-lg p-8 text-textPrimary"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div>
+          <motion.div variants={slideInLeft} initial="initial" animate="animate">
             <h1 className="text-3xl font-bold mb-2">
               Transparent Fund Tracking Platform
             </h1>
             <p className="text-textMuted text-lg">
               Real-time visibility into government budget allocation and spending
             </p>
-          </div>
-          <div className="mt-4 md:mt-0">
+          </motion.div>
+          <motion.div variants={slideInRight} initial="initial" animate="animate" className="mt-4 md:mt-0">
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
@@ -86,19 +111,19 @@ const PublicDashboard = () => {
                 <option key={year} value={year}>{year}</option>
               ))}
             </select>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" variants={staggerContainer} initial="initial" animate="animate">
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
           <div className="flex items-center">
             <div className="p-2 bg-success/20 rounded-lg">
               <CurrencyDollarIcon className="w-6 h-6 text-success" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-textMuted">Total Budget</p>
+              <p className="text-sm font-medium text-textPrimary">Total Budget</p>
               <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalAllocated || 0)}
               </p>
@@ -106,13 +131,13 @@ const PublicDashboard = () => {
           </div>
         </motion.div>
 
-        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
           <div className="flex items-center">
             <div className="p-2 bg-primary/20 rounded-lg">
               <ArrowTrendingUpIcon className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-textMuted">Total Spent</p>
+              <p className="text-sm font-medium text-textPrimary">Total Spent</p>
               <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalSpent || 0)}
               </p>
@@ -120,13 +145,13 @@ const PublicDashboard = () => {
           </div>
         </motion.div>
 
-        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
           <div className="flex items-center">
             <div className="p-2 bg-accent/20 rounded-lg">
               <ChartBarIcon className="w-6 h-6 text-accent" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-textMuted">Remaining</p>
+              <p className="text-sm font-medium text-textPrimary">Remaining</p>
               <p className="text-2xl font-bold text-textPrimary">
                 {formatCurrency(overview?.totalRemaining || 0)}
               </p>
@@ -134,30 +159,30 @@ const PublicDashboard = () => {
           </div>
         </motion.div>
 
-        <motion.div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200" variants={fadeUp}>
+        <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
           <div className="flex items-center">
             <div className="p-2 bg-secondary/20 rounded-lg">
               <BuildingOfficeIcon className="w-6 h-6 text-secondary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-textMuted">Active Budgets</p>
+              <p className="text-sm font-medium text-textPrimary">Active Budgets</p>
               <p className="text-2xl font-bold text-textPrimary">
                 {overview?.totalBudgets || 0}
               </p>
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Category Breakdown */}
       <motion.div className="grid grid-cols-1 lg:grid-cols-2 gap-8" variants={fadeUp}>
         <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
           <h3 className="text-lg font-semibold text-textPrimary mb-4">Budget by Category</h3>
-          <div className="space-y-4">
+          <motion.div className="space-y-4" variants={staggerContainer} initial="initial" animate="animate">
             {categoryBreakdown?.map((category, index) => {
               const utilizationRate = category.utilizationRate || 0;
               return (
-                <div key={category.category} className="space-y-2">
+                <motion.div key={category.category} className="space-y-2" variants={fadeUp}>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-textPrimary capitalize">
                       {category.category}
@@ -176,17 +201,17 @@ const PublicDashboard = () => {
                     <span>Spent: {formatCurrency(category.totalSpent)}</span>
                     <span>{utilizationRate.toFixed(1)}% utilized</span>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
 
         <div className="bg-surface p-6 rounded-lg shadow-sm border border-border">
           <h3 className="text-lg font-semibold text-textPrimary mb-4">Top Spending Departments</h3>
-          <div className="space-y-4">
+          <motion.div className="space-y-4" variants={staggerContainer} initial="initial" animate="animate">
             {departmentSpending?.slice(0, 5).map((dept, index) => (
-              <div key={dept._id} className="flex items-center justify-between">
+              <motion.div key={dept._id} className="flex items-center justify-between" variants={fadeUp}>
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-surface rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium text-textMuted">
@@ -207,9 +232,9 @@ const PublicDashboard = () => {
                     {formatCurrency(dept.totalSpent)}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 
@@ -247,9 +272,9 @@ const PublicDashboard = () => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-surface divide-y divide-border">
-              {recentTransactions?.map((transaction) => (
-                <tr key={transaction._id} className="hover:bg-surface">
+            <motion.tbody className="bg-surface divide-y divide-border" variants={staggerContainer} initial="initial" animate="animate">
+              {recentTransactions?.map((transaction, index) => (
+                <motion.tr key={transaction._id} className="hover:bg-surface" variants={fadeUp}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-textPrimary">
@@ -283,9 +308,9 @@ const PublicDashboard = () => {
                       {transaction.status}
                     </span>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </motion.div>
@@ -293,40 +318,46 @@ const PublicDashboard = () => {
       {/* Quick Actions */}
       <motion.div className="bg-surface p-6 rounded-lg shadow-sm border border-border" variants={fadeUp}>
         <h3 className="text-lg font-semibold text-textPrimary mb-4">Explore More</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/budgets"
-            className="flex items-center p-4 border border-border rounded-lg hover:border-primary hover:bg-surface transition-colors"
-          >
-            <CurrencyDollarIcon className="w-8 h-8 text-primary" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-textPrimary">View All Budgets</p>
-              <p className="text-sm text-textMuted">Browse budget allocations</p>
-            </div>
-          </Link>
+        <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-4" variants={staggerContainer} initial="initial" animate="animate">
+          <motion.div variants={fadeUp}>
+            <Link
+              to="/budgets"
+              className="flex items-center p-4 border border-border rounded-lg hover:border-primary hover:bg-surface transition-colors"
+            >
+              <CurrencyDollarIcon className="w-8 h-8 text-primary" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-textPrimary">View All Budgets</p>
+                <p className="text-sm text-textMuted">Browse budget allocations</p>
+              </div>
+            </Link>
+          </motion.div>
 
-          <Link
-            to="/transactions"
-            className="flex items-center p-4 border border-border rounded-lg hover:border-success hover:bg-surface transition-colors"
-          >
-            <DocumentTextIcon className="w-8 h-8 text-success" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-textPrimary">View Transactions</p>
-              <p className="text-sm text-textMuted">Track all expenses</p>
-            </div>
-          </Link>
+          <motion.div variants={fadeUp}>
+            <Link
+              to="/transactions"
+              className="flex items-center p-4 border border-border rounded-lg hover:border-success hover:bg-surface transition-colors"
+            >
+              <DocumentTextIcon className="w-8 h-8 text-success" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-textPrimary">View Transactions</p>
+                <p className="text-sm text-textMuted">Track all expenses</p>
+              </div>
+            </Link>
+          </motion.div>
 
-          <Link
-            to="/login"
-            className="flex items-center p-4 border border-border rounded-lg hover:border-secondary hover:bg-surface transition-colors"
-          >
-            <BuildingOfficeIcon className="w-8 h-8 text-secondary" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-textPrimary">Department Login</p>
-              <p className="text-sm text-textMuted">Access your dashboard</p>
-            </div>
-          </Link>
-        </div>
+          <motion.div variants={fadeUp}>
+            <Link
+              to="/login"
+              className="flex items-center p-4 border border-border rounded-lg hover:border-secondary hover:bg-surface transition-colors"
+            >
+              <BuildingOfficeIcon className="w-8 h-8 text-secondary" />
+              <div className="ml-3">
+                <p className="text-sm font-medium text-textPrimary">Department Login</p>
+                <p className="text-sm text-textMuted">Access your dashboard</p>
+              </div>
+            </Link>
+          </motion.div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

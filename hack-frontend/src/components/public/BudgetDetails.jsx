@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeftIcon, ChartBarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { publicAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BudgetDetails = () => {
   const { id } = useParams();
@@ -49,9 +50,17 @@ const BudgetDetails = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center space-x-4"
+      >
         <Link
           to="/budgets"
           className="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
@@ -62,66 +71,75 @@ const BudgetDetails = () => {
           <h1 className="text-2xl font-bold text-gray-900">{budget.title}</h1>
           <p className="text-gray-600">{budget.description}</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Budget Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Budget</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(budget.totalAmount)}
-              </p>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1
+            }
+          }
+        }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {[
+          {
+            label: "Total Budget",
+            value: formatCurrency(budget.totalAmount),
+            color: "text-gray-900",
+            bgColor: "bg-blue-100",
+            icon: <ChartBarIcon className="w-6 h-6 text-blue-600" />
+          },
+          {
+            label: "Total Spent",
+            value: formatCurrency(budget.spentAmount),
+            color: "text-green-600",
+            bgColor: "bg-green-100",
+            icon: <DocumentTextIcon className="w-6 h-6 text-green-600" />
+          },
+          {
+            label: "Remaining",
+            value: formatCurrency(budget.remainingAmount),
+            color: "text-yellow-600",
+            bgColor: "bg-yellow-100",
+            icon: <ChartBarIcon className="w-6 h-6 text-yellow-600" />
+          },
+          {
+            label: "Utilization",
+            value: `${budget.utilizationRate?.toFixed(1)}%`,
+            color: "text-purple-600",
+            bgColor: "bg-purple-100",
+            icon: <ChartBarIcon className="w-6 h-6 text-purple-600" />
+          }
+        ].map((item, index) => (
+          <motion.div
+            key={index}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            className="bg-white p-6 rounded-lg shadow-sm border border-gray-200"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">{item.label}</p>
+                <p className={`text-2xl font-bold ${item.color}`}>
+                  {item.value}
+                </p>
+              </div>
+              <div className={`p-2 rounded-lg ${item.bgColor}`}>
+                {item.icon}
+              </div>
             </div>
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <ChartBarIcon className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Spent</p>
-              <p className="text-2xl font-bold text-green-600">
-                {formatCurrency(budget.spentAmount)}
-              </p>
-            </div>
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DocumentTextIcon className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Remaining</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {formatCurrency(budget.remainingAmount)}
-              </p>
-            </div>
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <ChartBarIcon className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Utilization</p>
-              <p className="text-2xl font-bold text-purple-600">
-                {budget.utilizationRate?.toFixed(1)}%
-              </p>
-            </div>
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <ChartBarIcon className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Budget Info */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -259,7 +277,7 @@ const BudgetDetails = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

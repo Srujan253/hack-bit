@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { CurrencyDollarIcon, DocumentTextIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { transactionAPI, budgetAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
@@ -106,41 +107,70 @@ const DepartmentDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Budget Allocated"
-          value={formatCurrency(stats.totalBudget)}
-          icon={CurrencyDollarIcon}
-          color="blue"
-        />
-        <StatCard
-          title="Amount Spent"
-          value={formatCurrency(stats.spentAmount)}
-          icon={CheckCircleIcon}
-          color="green"
-        />
-        <StatCard
-          title="Pending Requests"
-          value={stats.pendingRequests}
-          icon={ClockIcon}
-          color="yellow"
-        />
-        <StatCard
-          title="Approved Requests"
-          value={stats.approvedRequests}
-          icon={DocumentTextIcon}
-          color="green"
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <StatCard
+            title="Total Budget Allocated"
+            value={formatCurrency(stats.totalBudget)}
+            icon={CurrencyDollarIcon}
+            color="blue"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <StatCard
+            title="Amount Spent"
+            value={formatCurrency(stats.spentAmount)}
+            icon={CheckCircleIcon}
+            color="green"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <StatCard
+            title="Pending Requests"
+            value={stats.pendingRequests}
+            icon={ClockIcon}
+            color="yellow"
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <StatCard
+            title="Approved Requests"
+            value={stats.approvedRequests}
+            icon={DocumentTextIcon}
+            color="green"
+          />
+        </motion.div>
       </div>
 
       {/* Budget Overview */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <motion.div
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget Allocations</h3>
         {budgets.length === 0 ? (
           <p className="text-gray-500">No budget allocations found for your department.</p>
         ) : (
           <div className="space-y-4">
             {budgets.map((budget) => {
-              const allocation = budget.departmentAllocations?.find(alloc => 
+              const allocation = budget.departmentAllocations?.find(alloc =>
                 alloc.departmentId === user.departmentId
               );
               const allocatedAmount = allocation?.allocatedAmount || 0;
@@ -158,7 +188,7 @@ const DepartmentDashboard = () => {
                       <p className="font-semibold text-gray-900">{formatCurrency(allocatedAmount)}</p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-3">
                     <div className="flex justify-between text-sm text-gray-600 mb-1">
                       <span>Spent: {formatCurrency(stats.spentAmount)}</span>
@@ -167,7 +197,7 @@ const DepartmentDashboard = () => {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          spentPercentage > 90 ? 'bg-red-500' : 
+                          spentPercentage > 90 ? 'bg-red-500' :
                           spentPercentage > 75 ? 'bg-yellow-500' : 'bg-green-500'
                         }`}
                         style={{ width: `${Math.min(spentPercentage, 100)}%` }}
@@ -179,17 +209,22 @@ const DepartmentDashboard = () => {
             })}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Recent Transactions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <motion.div
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
           <a href="/department/transactions" className="text-red-600 hover:text-red-700 text-sm font-medium">
             View All
           </a>
         </div>
-        
+
         {recentTransactions.length === 0 ? (
           <p className="text-gray-500">No recent transactions found.</p>
         ) : (
@@ -213,10 +248,15 @@ const DepartmentDashboard = () => {
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <motion.div
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+      >
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <a
@@ -229,7 +269,7 @@ const DepartmentDashboard = () => {
               <p className="text-sm text-gray-500">Create a new expense request for approval</p>
             </div>
           </a>
-          
+
           <a
             href="/department/budgets"
             className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
@@ -241,7 +281,7 @@ const DepartmentDashboard = () => {
             </div>
           </a>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

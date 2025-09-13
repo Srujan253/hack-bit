@@ -3,6 +3,7 @@ import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { budgetAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminBudgets = () => {
   const [budgets, setBudgets] = useState([]);
@@ -146,21 +147,31 @@ const AdminBudgets = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      >
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Budget Management</h1>
           <p className="text-gray-600">Create and manage budget allocations</p>
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setShowCreateModal(true)}
           className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
         >
           <PlusIcon className="w-5 h-5" />
           <span>Create Budget</span>
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -211,7 +222,11 @@ const AdminBudgets = () => {
       </div>
 
       {/* Budgets Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+      >
         {loading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
@@ -242,8 +257,16 @@ const AdminBudgets = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {budgets.map((budget) => (
-                  <tr key={budget._id} className="hover:bg-gray-50">
+                <AnimatePresence>
+                  {budgets.map((budget, index) => (
+                  <motion.tr
+                    key={budget._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{budget.title}</div>
@@ -265,23 +288,34 @@ const AdminBudgets = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-red-600 hover:text-red-900 mr-3">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="text-red-600 hover:text-red-900 mr-3"
+                      >
                         Edit
-                      </button>
-                      <button className="text-blue-600 hover:text-blue-900">
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
                         Allocate
-                      </button>
+                      </motion.button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {showCreateModal && <CreateBudgetModal />}
-    </div>
+      <AnimatePresence>
+        {showCreateModal && <CreateBudgetModal />}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

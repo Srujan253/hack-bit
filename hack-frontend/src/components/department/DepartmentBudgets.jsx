@@ -3,6 +3,7 @@ import { MagnifyingGlassIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { budgetAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor } from '../../utils/helpers';
 import { useAuthStore } from '../../store/authStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const DepartmentBudgets = () => {
   const { user } = useAuthStore();
@@ -48,21 +49,31 @@ const DepartmentBudgets = () => {
     const spentPercentage = allocatedAmount > 0 ? (spentAmount / allocatedAmount) * 100 : 0;
 
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{budget.title}</h3>
             <p className="text-sm text-gray-500 mt-1">{budget.description}</p>
             <div className="flex items-center space-x-4 mt-2">
-              <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full"
+              >
                 {budget.category}
-              </span>
+              </motion.span>
               <span className="text-xs text-gray-500">{budget.financialYear}</span>
             </div>
           </div>
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(budget.status)}`}>
+          <motion.span
+            whileHover={{ scale: 1.05 }}
+            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(budget.status)}`}
+          >
             {budget.status}
-          </span>
+          </motion.span>
         </div>
 
         <div className="space-y-4">
@@ -121,20 +132,31 @@ const DepartmentBudgets = () => {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
       {/* Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <h1 className="text-2xl font-bold text-gray-900">Budget Overview</h1>
         <p className="text-gray-600">View your department's budget allocations and spending</p>
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+      >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -170,7 +192,7 @@ const DepartmentBudgets = () => {
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* Budget Cards */}
       {loading ? (
@@ -178,7 +200,11 @@ const DepartmentBudgets = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
         </div>
       ) : budgets.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center"
+        >
           <ChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Budget Allocations</h3>
           <p className="text-gray-500">
@@ -186,18 +212,43 @@ const DepartmentBudgets = () => {
               ? 'No budgets found matching your search criteria.'
               : 'Your department has no budget allocations yet.'}
           </p>
-        </div>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {budgets.map((budget) => (
-            <BudgetCard key={budget._id} budget={budget} />
-          ))}
-        </div>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.1 }
+            }
+          }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
+          <AnimatePresence>
+            {budgets.map((budget) => (
+              <motion.div
+                key={budget._id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+              >
+                <BudgetCard budget={budget} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
 
       {/* Summary Stats */}
       {budgets.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        >
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
@@ -248,9 +299,9 @@ const DepartmentBudgets = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
