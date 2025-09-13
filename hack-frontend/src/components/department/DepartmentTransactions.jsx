@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Check, X, Eye } from 'lucide-react';
 import { transactionAPI } from '../../services/api';
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '../../utils/helpers';
 import toast from 'react-hot-toast';
@@ -13,6 +13,8 @@ const DepartmentTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [filters, setFilters] = useState({
     search: '',
     status: '',
@@ -36,6 +38,17 @@ const DepartmentTransactions = () => {
     }
   };
 
+  const handleReviewTransaction = async (transactionId, action) => {
+    try {
+      await transactionAPI.reviewTransaction(transactionId, { action });
+      toast.success(`Transaction ${action}d successfully`);
+      setShowReviewModal(false);
+      fetchTransactions();
+    } catch (error) {
+      toast.error(error.response?.data?.message || `Failed to ${action} transaction`);
+    }
+  };
+
   const CreateTransactionModal = () => {
     const [formData, setFormData] = useState({
       budgetId: '',
@@ -52,7 +65,6 @@ const DepartmentTransactions = () => {
     const [creating, setCreating] = useState(false);
 
     useEffect(() => {
-      // Fetch available budgets for this department
       const fetchBudgets = async () => {
         try {
           const response = await transactionAPI.getAvailableBudgets();
@@ -87,84 +99,95 @@ const DepartmentTransactions = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-xl shadow-2xl border border-slate-600 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-xl shadow-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         >
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Submit Expense Request</h3>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <GradientHeader
+                title="Create Expense Request"
+                subtitle="Submit a new expense request for approval"
+                className="w-full"
+              />
+            </motion.div>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Form fields similar to SubmitExpense.jsx */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Budget</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Budget</label>
                   <select
-                    required
                     value={formData.budgetId}
                     onChange={(e) => setFormData({...formData, budgetId: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    required
                   >
-                    <option value="" className="bg-slate-700 text-white">Select Budget</option>
+                    <option value="" className="bg-slate-700 text-white">Select budget...</option>
                     {budgets.map(budget => (
                       <option key={budget._id} value={budget._id} className="bg-slate-700 text-white">
-                        {budget.title} ({budget.category})
+                        {budget.title} - {budget.category}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Amount</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Amount</label>
                   <input
                     type="number"
-                    required
-                    min="0"
                     step="0.01"
                     value={formData.amount}
                     onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-400"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    placeholder="0.00"
+                    required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300">Description</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
                 <textarea
-                  required
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-400"
-                  rows="3"
-                  placeholder="Detailed description of the expense..."
+                  rows={3}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                  placeholder="Describe the expense..."
+                  required
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Category</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
                   >
                     <option value="equipment" className="bg-slate-700 text-white">Equipment</option>
                     <option value="supplies" className="bg-slate-700 text-white">Supplies</option>
                     <option value="services" className="bg-slate-700 text-white">Services</option>
-                    <option value="maintenance" className="bg-slate-700 text-white">Maintenance</option>
-                    <option value="salary" className="bg-slate-700 text-white">Salary</option>
                     <option value="travel" className="bg-slate-700 text-white">Travel</option>
+                    <option value="training" className="bg-slate-700 text-white">Training</option>
+                    <option value="maintenance" className="bg-slate-700 text-white">Maintenance</option>
                     <option value="utilities" className="bg-slate-700 text-white">Utilities</option>
                     <option value="other" className="bg-slate-700 text-white">Other</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Priority</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Priority</label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({...formData, priority: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
                   >
                     <option value="low" className="bg-slate-700 text-white">Low</option>
                     <option value="medium" className="bg-slate-700 text-white">Medium</option>
@@ -174,55 +197,58 @@ const DepartmentTransactions = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Vendor Name</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Vendor Name</label>
                   <input
                     type="text"
-                    required
                     value={formData.vendorName}
                     onChange={(e) => setFormData({...formData, vendorName: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-400"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    placeholder="Vendor name"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Vendor Contact</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Vendor Contact</label>
                   <input
                     type="text"
                     value={formData.vendorContact}
                     onChange={(e) => setFormData({...formData, vendorContact: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-400"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
                     placeholder="Phone or email"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Invoice Number</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Invoice Number</label>
                   <input
                     type="text"
                     value={formData.invoiceNumber}
                     onChange={(e) => setFormData({...formData, invoiceNumber: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-slate-400"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    placeholder="Invoice number"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Expected Date</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Expected Date</label>
                   <input
                     type="date"
                     value={formData.expectedDate}
                     onChange={(e) => setFormData({...formData, expectedDate: e.target.value})}
-                    className="mt-1 w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
                   />
                 </div>
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex space-x-3 pt-6 border-t border-slate-600">
                 <ActionButton
                   type="button"
                   variant="secondary"
                   onClick={() => setShowCreateModal(false)}
+                  className="flex-1"
                 >
                   Cancel
                 </ActionButton>
@@ -230,11 +256,125 @@ const DepartmentTransactions = () => {
                   type="submit"
                   variant="primary"
                   disabled={creating}
+                  className="flex-1"
+                  icon={Plus}
                 >
-                  {creating ? 'Submitting...' : 'Submit Request'}
+                  {creating ? 'Creating...' : 'Create Request'}
                 </ActionButton>
               </div>
             </form>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  };
+
+  const ReviewModal = () => {
+    if (!selectedTransaction) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-xl shadow-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        >
+          <div className="p-6">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <GradientHeader
+                title="Review Transaction"
+                subtitle={`Transaction ID: ${selectedTransaction.transactionId}`}
+                className="w-full"
+              />
+            </motion.div>
+
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-slate-300 text-sm">Amount:</span>
+                  <p className="text-white font-semibold">{formatCurrency(selectedTransaction.amount)}</p>
+                </div>
+                <div>
+                  <span className="text-slate-300 text-sm">Status:</span>
+                  <p className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedTransaction.status)}`}>
+                    {selectedTransaction.status}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-slate-300 text-sm">Category:</span>
+                  <p className="text-white capitalize">{selectedTransaction.category}</p>
+                </div>
+                <div>
+                  <span className="text-slate-300 text-sm">Priority:</span>
+                  <p className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(selectedTransaction.priority)}`}>
+                    {selectedTransaction.priority}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-slate-300 text-sm">Description:</span>
+                <p className="text-white mt-1">{selectedTransaction.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-slate-300 text-sm">Vendor:</span>
+                  <p className="text-white">{selectedTransaction.vendorName}</p>
+                </div>
+                <div>
+                  <span className="text-slate-300 text-sm">Department:</span>
+                  <p className="text-white">{selectedTransaction.departmentId?.departmentName}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-slate-300 text-sm">Requested:</span>
+                  <p className="text-white">{formatDate(selectedTransaction.requestedAt)}</p>
+                </div>
+                <div>
+                  <span className="text-slate-300 text-sm">Expected:</span>
+                  <p className="text-white">{selectedTransaction.expectedDate ? formatDate(selectedTransaction.expectedDate) : 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <ActionButton
+                type="button"
+                variant="success"
+                onClick={() => handleReviewTransaction(selectedTransaction._id, 'approve')}
+                icon={Check}
+              >
+                Approve
+              </ActionButton>
+              <ActionButton
+                type="button"
+                variant="danger"
+                onClick={() => handleReviewTransaction(selectedTransaction._id, 'reject')}
+                icon={X}
+              >
+                Reject
+              </ActionButton>
+              <ActionButton
+                type="button"
+                variant="secondary"
+                onClick={() => setShowReviewModal(false)}
+              >
+                Cancel
+              </ActionButton>
+            </div>
           </div>
         </motion.div>
       </motion.div>
@@ -248,29 +388,25 @@ const DepartmentTransactions = () => {
       className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6"
     >
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 rounded-xl p-6 mb-6 flex items-center justify-between w-full"
-      >
-        <div className="text-white flex flex-col">
-          <h1 className="text-2xl font-bold">Expense Requests</h1>
-          <p className="text-indigo-200 mt-1">Manage your department's expense requests</p>
-        </div>
-        <ActionButton
-          onClick={() => setShowCreateModal(true)}
-          icon={Plus}
-          className="h-10 px-4 py-2"
-        >
-          New Request
-        </ActionButton>
-      </motion.div>
+      <GradientHeader
+        title="Expense Transactions"
+        subtitle="Manage your department's expense requests"
+        actions={
+          <ActionButton
+            variant="primary"
+            icon={Plus}
+            onClick={() => setShowCreateModal(true)}
+          >
+            New Request
+          </ActionButton>
+        }
+      />
 
       {/* Filters */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-xl border border-slate-600 p-6 mb-6"
+        className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-xl border border-slate-600 p-6 mt-6"
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
@@ -305,9 +441,9 @@ const DepartmentTransactions = () => {
             <option value="equipment" className="bg-slate-700 text-white">Equipment</option>
             <option value="supplies" className="bg-slate-700 text-white">Supplies</option>
             <option value="services" className="bg-slate-700 text-white">Services</option>
-            <option value="maintenance" className="bg-slate-700 text-white">Maintenance</option>
-            <option value="salary" className="bg-slate-700 text-white">Salary</option>
             <option value="travel" className="bg-slate-700 text-white">Travel</option>
+            <option value="training" className="bg-slate-700 text-white">Training</option>
+            <option value="maintenance" className="bg-slate-700 text-white">Maintenance</option>
             <option value="utilities" className="bg-slate-700 text-white">Utilities</option>
             <option value="other" className="bg-slate-700 text-white">Other</option>
           </select>
@@ -327,19 +463,29 @@ const DepartmentTransactions = () => {
       </motion.div>
 
       {/* Transactions Table */}
-      <Card className="overflow-hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl shadow-xl border border-slate-600 mt-6 overflow-hidden"
+      >
         {loading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto"></div>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
           </div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 text-center text-slate-400">
-            No transactions found matching your criteria
+          <div className="p-12 text-center">
+            <Icon as={Search} size={48} className="text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-white mb-2">No Transactions Found</h3>
+            <p className="text-slate-300">
+              {filters.search || filters.status || filters.category || filters.priority
+                ? 'No transactions match your search criteria.'
+                : 'No expense transactions yet.'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-600">
-              <thead className="bg-gradient-to-r from-slate-800 to-slate-700">
+              <thead className="bg-slate-800">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Transaction
@@ -359,14 +505,17 @@ const DepartmentTransactions = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Status
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody className="bg-gradient-to-r from-slate-800 to-slate-700 divide-y divide-slate-600">
+              <tbody className="bg-slate-700 divide-y divide-slate-600">
                 {transactions.map((transaction) => (
                   <motion.tr
                     key={transaction._id}
-                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(51, 65, 85, 0.5)' }}
-                    className="hover:bg-slate-700/50 transition-colors"
+                    whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.5)' }}
+                    className="hover:bg-slate-600 transition-colors duration-200"
                   >
                     <td className="px-6 py-4">
                       <div>
@@ -398,16 +547,31 @@ const DepartmentTransactions = () => {
                         {transaction.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <ActionButton
+                        variant="secondary"
+                        size="sm"
+                        icon={Eye}
+                        onClick={() => {
+                          setSelectedTransaction(transaction);
+                          setShowReviewModal(true);
+                        }}
+                      >
+                        Review
+                      </ActionButton>
+                    </td>
                   </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </Card>
+      </motion.div>
 
+      {/* Modals */}
       <AnimatePresence>
         {showCreateModal && <CreateTransactionModal />}
+        {showReviewModal && <ReviewModal />}
       </AnimatePresence>
     </motion.div>
   );
