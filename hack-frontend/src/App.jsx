@@ -1,14 +1,117 @@
-import React from 'react'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import useAuthStore from './store/authStore';
+
+// Import components
+import PublicDashboard from './components/public/PublicDashboard';
+import PublicBudgets from './components/public/PublicBudgets';
+import PublicTransactions from './components/public/PublicTransactions';
+import BudgetDetails from './components/public/BudgetDetails';
+
+import Login from './components/auth/Login';
+import DepartmentSignup from './components/auth/DepartmentSignup';
+import AdminLogin from './components/auth/AdminLogin';
+
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminBudgets from './components/admin/AdminBudgets';
+import AdminTransactions from './components/admin/AdminTransactions';
+import AdminApprovals from './components/admin/AdminApprovals';
+
+import DepartmentDashboard from './components/department/DepartmentDashboard';
+import DepartmentBudgets from './components/department/DepartmentBudgets';
+import DepartmentTransactions from './components/department/DepartmentTransactions';
+import SubmitExpense from './components/department/SubmitExpense';
+
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 export default function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900">
-      <h1 className="text-5xl font-extrabold text-blue-400">
-        🚀 Tailwind 3.4+ is working!
-      </h1>
-      <button className="mt-6 px-6 py-3 rounded-lg bg-blue-500 text-white font-semibold shadow-lg hover:bg-blue-600 transition">
-        Test Button
-      </button>
-    </div>
-  )
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+          }}
+        />
+        
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Layout><PublicDashboard /></Layout>} />
+          <Route path="/budgets" element={<Layout><PublicBudgets /></Layout>} />
+          <Route path="/budgets/:id" element={<Layout><BudgetDetails /></Layout>} />
+          <Route path="/transactions" element={<Layout><PublicTransactions /></Layout>} />
+          
+          {/* Authentication Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/department/signup" element={<DepartmentSignup />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><AdminDashboard /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/budgets" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><AdminBudgets /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/transactions" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><AdminTransactions /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/approvals" element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout><AdminApprovals /></Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Department Routes */}
+          <Route path="/department" element={
+            <ProtectedRoute requiredRole="department">
+              <Layout><DepartmentDashboard /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/department/budgets" element={
+            <ProtectedRoute requiredRole="department">
+              <Layout><DepartmentBudgets /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/department/transactions" element={
+            <ProtectedRoute requiredRole="department">
+              <Layout><DepartmentTransactions /></Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/department/submit-expense" element={
+            <ProtectedRoute requiredRole="department">
+              <Layout><SubmitExpense /></Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Redirect authenticated users to their dashboard */}
+          <Route path="/dashboard" element={
+            isAuthenticated ? (
+              user?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/department" />
+            ) : (
+              <Navigate to="/login" />
+            )
+          } />
+          
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
