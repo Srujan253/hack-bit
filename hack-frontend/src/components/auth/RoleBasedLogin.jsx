@@ -263,7 +263,7 @@ const RoleBasedLogin = () => {
               exit={{ opacity: 0, height: 0 }}
               className="mb-6 text-center"
             >
-              <motion.button
+              {/* <motion.button
                 type="button"
                 onClick={fillDemoCredentials}
                 className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-400 bg-blue-500/10 rounded-full hover:bg-blue-500/20 transition-all duration-300 border border-blue-500/20 hover:border-blue-500/40"
@@ -272,7 +272,7 @@ const RoleBasedLogin = () => {
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Use Demo Credentials
-              </motion.button>
+              </motion.button> */}
             </motion.div>
           )}
         </AnimatePresence>
