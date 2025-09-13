@@ -251,16 +251,16 @@ const DepartmentTransactions = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
+        className="bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 rounded-xl p-6 mb-6 flex items-center justify-between w-full"
       >
-        <GradientHeader
-          title="Expense Requests"
-          subtitle="Manage your department's expense requests"
-        />
+        <div className="text-white flex flex-col">
+          <h1 className="text-2xl font-bold">Expense Requests</h1>
+          <p className="text-indigo-200 mt-1">Manage your department's expense requests</p>
+        </div>
         <ActionButton
           onClick={() => setShowCreateModal(true)}
           icon={Plus}
-          className="mt-4 sm:mt-0"
+          className="h-10 px-4 py-2"
         >
           New Request
         </ActionButton>

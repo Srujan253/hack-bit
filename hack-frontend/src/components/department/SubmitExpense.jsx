@@ -81,17 +81,19 @@ const SubmitExpense = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center space-x-4 mb-6"
+        className="bg-gradient-to-r from-indigo-700 via-purple-700 to-pink-700 rounded-xl p-6 mb-6 flex items-center justify-between w-full"
       >
-        <Icon
-          as={ArrowLeft}
-          onClick={() => navigate('/department/transactions')}
-          className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
-        />
-        <GradientHeader
-          title="Submit Expense Request"
-          subtitle="Create a new expense request for approval"
-        />
+        <div className="flex items-center space-x-4">
+          <Icon
+            as={ArrowLeft}
+            onClick={() => navigate('/department/transactions')}
+            className="p-2 text-white hover:bg-white/20 rounded-lg transition-colors cursor-pointer"
+          />
+          <div className="text-white flex flex-col">
+            <h1 className="text-2xl font-bold">Submit Expense Request</h1>
+            <p className="text-indigo-200 mt-1">Create a new expense request for approval</p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Form */}
@@ -150,21 +152,21 @@ const SubmitExpense = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-gradient-to-r from-blue-900/50 to-indigo-900/50 rounded-lg border border-blue-500/30"
+              className="p-6 bg-gradient-to-r from-blue-900/60 to-indigo-900/60 rounded-xl border border-blue-500/40 shadow-lg backdrop-blur-md hover:shadow-2xl transition-shadow duration-300 col-span-full"
             >
-              <h4 className="font-medium text-blue-300 mb-2">Selected Budget Information</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <h4 className="font-semibold text-blue-300 mb-4 text-lg">Selected Budget Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                 <div>
-                  <span className="text-blue-200 font-medium">Total Budget:</span>
-                  <span className="ml-2 text-white">₹{selectedBudget.totalAmount?.toLocaleString()}</span>
+                  <span className="text-blue-200 font-semibold">Total Budget:</span>
+                  <span className="ml-2 text-white font-medium">₹{selectedBudget.totalAmount?.toLocaleString()}</span>
                 </div>
                 <div>
-                  <span className="text-blue-200 font-medium">Allocated:</span>
-                  <span className="ml-2 text-white">₹{selectedBudget.allocatedAmount?.toLocaleString()}</span>
+                  <span className="text-blue-200 font-semibold">Allocated:</span>
+                  <span className="ml-2 text-white font-medium">₹{selectedBudget.allocatedAmount?.toLocaleString()}</span>
                 </div>
                 <div>
-                  <span className="text-blue-200 font-medium">Remaining:</span>
-                  <span className="ml-2 text-white">₹{(selectedBudget.allocatedAmount - selectedBudget.spentAmount)?.toLocaleString()}</span>
+                  <span className="text-blue-200 font-semibold">Remaining:</span>
+                  <span className="ml-2 text-white font-medium">₹{(selectedBudget.allocatedAmount - selectedBudget.spentAmount)?.toLocaleString()}</span>
                 </div>
               </div>
             </motion.div>
