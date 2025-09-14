@@ -141,15 +141,8 @@ const BudgetDetails = () => {
 
   const fetchCommentStats = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:5050/api/comments/budget/${id}/stats`
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setCommentStats(data);
-      } else {
-        console.error("Failed to fetch comment stats:", data.message);
-      }
+      const res = await commentAPI.getBudgetCommentStats(id);
+      setCommentStats(res.data);
     } catch (error) {
       console.error("Error fetching comment stats:", error);
     }
@@ -168,30 +161,14 @@ const BudgetDetails = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5050/api/comments/budget/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(commentForm),
-        }
+      await commentAPI.postBudgetComment(id, commentForm);
+      toast.success(
+        "Comment submitted successfully! It will be visible after moderation."
       );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success(
-          "Comment submitted successfully! It will be visible after moderation."
-        );
-        setCommentForm({ name: "", email: "", comment: "", type: "comment" });
-        setShowCommentForm(false);
-        // Refresh stats
-        fetchCommentStats();
-      } else {
-        toast.error(data.message || "Failed to submit comment");
-      }
+      setCommentForm({ name: "", email: "", comment: "", type: "comment" });
+      setShowCommentForm(false);
+      // Refresh stats
+      fetchCommentStats();
     } catch (error) {
       console.error("Error submitting comment:", error);
       toast.error("Failed to submit comment");
@@ -200,24 +177,16 @@ const BudgetDetails = () => {
 
   const handleLikeComment = async (commentId) => {
     try {
-      const response = await fetch(
-        `http://localhost:5050/api/comments/${commentId}/like`,
-        {
-          method: "POST",
-        }
+      await commentAPI.likeComment(commentId);
+      // Update the comment likes in state
+      setComments(
+        comments.map((comment) =>
+          comment._id === commentId
+            ? { ...comment, likes: comment.likes + 1 }
+            : comment
+        )
       );
-
-      if (response.ok) {
-        // Update the comment likes in state
-        setComments(
-          comments.map((comment) =>
-            comment._id === commentId
-              ? { ...comment, likes: comment.likes + 1 }
-              : comment
-          )
-        );
-        toast.success("Thank you for your feedback!");
-      }
+      toast.success("Thank you for your feedback!");
     } catch (error) {
       console.error("Error liking comment:", error);
     }
