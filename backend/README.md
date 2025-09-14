@@ -205,7 +205,7 @@ http://localhost:5050/api
 
 ### Manual Testing
 1. Start the server: `npm run dev`
-2. Visit `http://localhost:5050/api` for API documentation
+2. Visit `https://fund-tracker-hppt.onrender.com/api` for API documentation
 3. Use Postman or curl to test endpoints
 
 ### Default Admin Credentials

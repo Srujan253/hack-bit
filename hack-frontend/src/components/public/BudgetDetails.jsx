@@ -103,7 +103,7 @@ const BudgetDetails = () => {
   const fetchComments = async () => {
     try {
       setCommentsLoading(true);
-      const response = await fetch(`http://localhost:5050/api/comments/budget/${id}`);
+      const response = await fetch(`https://fund-tracker-hppt.onrender.com/api/comments/budget/${id}`);
       const data = await response.json();
       if (response.ok) {
         setComments(data.comments);
@@ -119,7 +119,7 @@ const BudgetDetails = () => {
 
   const fetchCommentStats = async () => {
     try {
-      const response = await fetch(`http://localhost:5050/api/comments/budget/${id}/stats`);
+      const response = await fetch(`https://fund-tracker-hppt.onrender.com/api/comments/budget/${id}/stats`);
       const data = await response.json();
       if (response.ok) {
         setCommentStats(data);
@@ -140,7 +140,7 @@ const BudgetDetails = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5050/api/comments/budget/${id}`, {
+      const response = await fetch(`https://fund-tracker-hppt.onrender.com/api/comments/budget/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ const BudgetDetails = () => {
 
   const handleLikeComment = async (commentId) => {
     try {
-      const response = await fetch(`http://localhost:5050/api/comments/${commentId}/like`, {
+      const response = await fetch(`https://fund-tracker-hppt.onrender.com/api/comments/${commentId}/like`, {
         method: 'POST',
       });
 
