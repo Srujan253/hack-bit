@@ -4,9 +4,10 @@
   "type": "module",
   "main": "backend/index.js",
   "scripts": {
-    "start": "cd backend && npm start",
-    "build": "cd backend && npm install",
-    "dev": "cd backend && npm run dev"
+    "start": "node index.js",
+    "build": "npm install && cd backend && npm install",
+    "dev": "cd backend && npm run dev",
+    "backend": "cd backend && npm start"
   },
   "dependencies": {
     "react-icons": "^5.5.0",
