@@ -48,6 +48,15 @@ const transactionSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  // Smart contract integration fields
+  smartContractRequestId: {
+    type: Number,
+    default: null
+  },
+  blockchainTxHash: {
+    type: String,
+    default: null
+  },
   invoiceDate: {
     type: Date,
     required: true

@@ -44,35 +44,151 @@ const Layout = ({ children }) => {
     setShowUserDropdown(false);
   };
 
-  // Public navigation items
+  // Enhanced public navigation items with descriptions
   const publicNavItems = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon, color: 'from-blue-500 to-blue-600' },
-    { name: 'Budgets', href: '/budgets', icon: CurrencyDollarIcon, color: 'from-green-500 to-green-600' },
-    { name: 'Transactions', href: '/transactions', icon: DocumentTextIcon, color: 'from-purple-500 to-purple-600' },
+    { 
+      name: 'Overview', 
+      href: '/', 
+      icon: HomeIcon, 
+      color: 'from-blue-500 to-blue-600',
+      description: 'Government spending overview'
+    },
+    { 
+      name: 'Fund Flow', 
+      href: '/flow-dashboard', 
+      icon: ChartBarIcon, 
+      color: 'from-teal-500 to-teal-600',
+      description: 'Track money movement'
+    },
+    { 
+      name: 'Budgets', 
+      href: '/budgets', 
+      icon: CurrencyDollarIcon, 
+      color: 'from-green-500 to-green-600',
+      description: 'Browse all budgets'
+    },
+    { 
+      name: 'Transactions', 
+      href: '/transactions', 
+      icon: DocumentTextIcon, 
+      color: 'from-purple-500 to-purple-600',
+      description: 'View all expenses'
+    },
   ];
 
-  // Admin navigation items
+  // Enhanced admin navigation items with grouping
   const adminNavItems = [
-    { name: 'Dashboard', href: '/admin', icon: HomeIcon, color: 'from-blue-500 to-blue-600' },
-    { name: 'Budgets', href: '/admin/budgets', icon: CurrencyDollarIcon, color: 'from-green-500 to-green-600' },
-    { name: 'Allocate Budget', href: '/admin/allocate-budget', icon: BanknotesIcon, color: 'from-yellow-500 to-yellow-600' },
-    { name: 'Transactions', href: '/admin/transactions', icon: DocumentTextIcon, color: 'from-purple-500 to-purple-600' },
-    { name: 'Approvals', href: '/admin/approvals', icon: UserGroupIcon, color: 'from-red-500 to-red-600' },
-    { name: 'Alerts', href: '/admin/alerts', icon: Cog6ToothIcon, color: 'from-orange-500 to-orange-600' },
+    {
+      group: 'Overview',
+      items: [
+        { 
+          name: 'Dashboard', 
+          href: '/admin', 
+          icon: HomeIcon, 
+          color: 'from-blue-500 to-blue-600',
+          description: 'Admin overview'
+        },
+        { 
+          name: 'Fund Flow', 
+          href: '/admin/farmer-dashboard', 
+          icon: ChartBarIcon, 
+          color: 'from-teal-500 to-teal-600',
+          description: 'Monitor fund flows'
+        },
+      ]
+    },
+    {
+      group: 'Budget Management',
+      items: [
+        { 
+          name: 'Budgets', 
+          href: '/admin/budgets', 
+          icon: CurrencyDollarIcon, 
+          color: 'from-green-500 to-green-600',
+          description: 'Manage budgets'
+        },
+        { 
+          name: 'Allocate', 
+          href: '/admin/allocate-budget', 
+          icon: BanknotesIcon, 
+          color: 'from-yellow-500 to-yellow-600',
+          description: 'Distribute funds'
+        },
+      ]
+    },
+    {
+      group: 'Operations',
+      items: [
+        { 
+          name: 'Transactions', 
+          href: '/admin/transactions', 
+          icon: DocumentTextIcon, 
+          color: 'from-purple-500 to-purple-600',
+          description: 'All transactions'
+        },
+        { 
+          name: 'Approvals', 
+          href: '/admin/approvals', 
+          icon: UserGroupIcon, 
+          color: 'from-red-500 to-red-600',
+          description: 'Pending requests'
+        },
+        { 
+          name: 'Alerts', 
+          href: '/admin/alerts', 
+          icon: Cog6ToothIcon, 
+          color: 'from-orange-500 to-orange-600',
+          description: 'System alerts'
+        },
+      ]
+    }
   ];
 
-  // Department navigation items
+  // Enhanced department navigation items
   const departmentNavItems = [
-    { name: 'Dashboard', href: '/department', icon: HomeIcon, color: 'from-blue-500 to-blue-600' },
-    { name: 'My Budgets', href: '/department/budgets', icon: CurrencyDollarIcon, color: 'from-green-500 to-green-600' },
-    { name: 'Expense Tracker', href: '/department/expense-tracker', icon: ChartBarIcon, color: 'from-indigo-500 to-indigo-600' },
-    { name: 'Transactions', href: '/department/transactions', icon: DocumentTextIcon, color: 'from-purple-500 to-purple-600' },
-    { name: 'Submit Expense', href: '/department/submit-expense', icon: BanknotesIcon, color: 'from-yellow-500 to-yellow-600' },
+    { 
+      name: 'Dashboard', 
+      href: '/department', 
+      icon: HomeIcon, 
+      color: 'from-blue-500 to-blue-600',
+      description: 'Department overview'
+    },
+    { 
+      name: 'My Budgets', 
+      href: '/department/budgets', 
+      icon: CurrencyDollarIcon, 
+      color: 'from-green-500 to-green-600',
+      description: 'Allocated budgets'
+    },
+    { 
+      name: 'Expense Tracker', 
+      href: '/department/expense-tracker', 
+      icon: ChartBarIcon, 
+      color: 'from-indigo-500 to-indigo-600',
+      description: 'Track spending'
+    },
+    { 
+      name: 'Transactions', 
+      href: '/department/transactions', 
+      icon: DocumentTextIcon, 
+      color: 'from-purple-500 to-purple-600',
+      description: 'Transaction history'
+    },
+    { 
+      name: 'Submit Expense', 
+      href: '/department/submit-expense', 
+      icon: BanknotesIcon, 
+      color: 'from-yellow-500 to-yellow-600',
+      description: 'Request approval'
+    },
   ];
 
   // Get navigation items based on user role
   const getNavItems = () => {
-    if (isAdmin()) return adminNavItems;
+    if (isAdmin()) {
+      // Flatten admin grouped items for rendering
+      return adminNavItems.flatMap(group => group.items);
+    }
     if (isDepartment()) return departmentNavItems;
     return publicNavItems;
   };
@@ -121,20 +237,34 @@ const Layout = ({ children }) => {
               </Link>
             </motion.div>
 
-            {/* Enhanced Navigation */}
-            <nav className="hidden md:flex space-x-2 items-center">
-              {/* Section Heading */}
-              <span className="text-xs font-semibold text-textMuted mr-4 tracking-wide uppercase">
-                {isAdmin() ? 'Admin' : isDepartment() ? 'Department' : 'Public'} Menu
-              </span>
-              {/* Grouped Navigation Items */}
-              <div className="flex space-x-2">
+            {/* Enhanced Navigation with improved design */}
+            <nav className="hidden lg:flex items-center space-x-6">
+              {/* Role Badge */}
+              <div className="flex items-center space-x-2">
+                <motion.div 
+                  className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase ${
+                    isAdmin() 
+                      ? 'bg-red-100 text-red-700 border border-red-200' 
+                      : isDepartment() 
+                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                        : 'bg-green-100 text-green-700 border border-green-200'
+                  }`}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {isAdmin() ? '👨‍💼 Admin' : isDepartment() ? '🏢 Department' : '🌐 Public'} Portal
+                </motion.div>
+              </div>
+
+              {/* Navigation Items with enhanced tooltips */}
+              <div className="flex items-center space-x-1">
                 {navItems.map((item, index) => {
                   const isActive = location.pathname === item.href;
                   return (
                     <motion.div
                       key={item.name}
-                      className="relative"
+                      className="relative group"
                       onHoverStart={() => setActiveHover(index)}
                       onHoverEnd={() => setActiveHover(null)}
                       whileHover={{ y: -2 }}
@@ -142,49 +272,93 @@ const Layout = ({ children }) => {
                     >
                       <Link
                         to={item.href}
-                        className={`relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden group ${
+                        className={`relative flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden group ${
                           isActive
-                            ? 'text-white shadow-lg'
-                            : 'text-textMuted hover:text-textPrimary'
+                            ? 'text-white shadow-lg transform scale-105'
+                            : 'text-textMuted hover:text-textPrimary hover:bg-gray-50'
                         }`}
                       >
-                        {/* Background gradient for active/hover */}
+                        {/* Enhanced background gradient */}
                         {(isActive || activeHover === index) && (
                           <motion.div
                             layoutId={isActive ? "activeTab" : "hoverTab"}
-                            className={`absolute inset-0 bg-gradient-to-r ${item.color} rounded-xl`}
+                            className={`absolute inset-0 bg-gradient-to-r ${item.color} rounded-xl shadow-md`}
                             initial={false}
                             transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                           />
                         )}
-                        {/* Shimmer effect on hover */}
+                        
+                        {/* Shimmer effect */}
                         <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full"
-                          transition={{ duration: 0.6 }}
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full"
+                          transition={{ duration: 0.8 }}
                         />
+                        
+                        {/* Icon with enhanced animation */}
                         <motion.div
                           className="relative z-10"
-                          animate={isActive ? { rotate: [0, -5, 5, 0] } : {}}
-                          transition={{ duration: 0.5 }}
+                          animate={isActive ? { 
+                            rotate: [0, -5, 5, 0],
+                            scale: [1, 1.1, 1]
+                          } : {}}
+                          transition={{ duration: 0.6 }}
                         >
                           <item.icon className="w-4 h-4" />
                         </motion.div>
-                        <span className="relative z-10">{item.name}</span>
-                        {/* Active indicator dot */}
+                        
+                        <span className="relative z-10 font-medium">{item.name}</span>
+                        
+                        {/* Enhanced active indicator */}
                         {isActive && (
                           <motion.div
-                            className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"
+                            className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full shadow-sm flex items-center justify-center"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 500 }}
-                          />
+                          >
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          </motion.div>
                         )}
                       </Link>
+
+                      {/* Enhanced Tooltip */}
+                      <AnimatePresence>
+                        {activeHover === index && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50"
+                          >
+                            <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                              <div className="font-medium">{item.name}</div>
+                              <div className="text-gray-300 text-xs mt-0.5">{item.description}</div>
+                              {/* Tooltip arrow */}
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   );
                 })}
               </div>
             </nav>
+
+            {/* Mobile menu button */}
+            <motion.button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg text-textMuted hover:text-textPrimary hover:bg-gray-100 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="w-6 h-6" />
+              ) : (
+                <Bars3Icon className="w-6 h-6" />
+              )}
+            </motion.button>
 
             {/* Enhanced User Menu */}
             <div className="flex items-center space-x-4">

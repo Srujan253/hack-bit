@@ -11,6 +11,7 @@ import PublicDashboard from './components/public/PublicDashboard';
 import PublicBudgets from './components/public/PublicBudgets';
 import PublicTransactions from './components/public/PublicTransactions';
 import BudgetDetails from './components/public/BudgetDetails';
+import PublicFlowDashboard from './components/public/PublicFlowDashboard';
 
 import Login from './components/auth/Login';
 import DepartmentSignup from './components/auth/DepartmentSignup';
@@ -23,6 +24,7 @@ import AdminTransactions from './components/admin/AdminTransactions';
 import AdminApprovals from './components/admin/AdminApprovals';
 import BudgetAllocation from './components/admin/BudgetAllocation';
 import AlertManagement from './components/admin/AlertManagement';
+import FarmerDashboard from './components/admin/FarmerDashboard';
 
 import DepartmentDashboard from './components/department/DepartmentDashboard';
 import DepartmentBudgets from './components/department/DepartmentBudgets';
@@ -58,16 +60,20 @@ export default function App() {
               },
             }}
           />
+          
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Layout><PublicDashboard /></Layout>} />
+            <Route path="/flow-dashboard" element={<Layout><PublicFlowDashboard /></Layout>} />
             <Route path="/budgets" element={<Layout><PublicBudgets /></Layout>} />
             <Route path="/budgets/:id" element={<Layout><BudgetDetails /></Layout>} />
             <Route path="/transactions" element={<Layout><PublicTransactions /></Layout>} />
+            
             {/* Authentication Routes */}
             <Route path="/login" element={<RoleBasedLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/department/signup" element={<DepartmentSignup />} />
+            
             {/* Admin Routes */}
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
@@ -99,6 +105,12 @@ export default function App() {
                 <Layout><AlertManagement /></Layout>
               </ProtectedRoute>
             } />
+            <Route path="/admin/farmer-dashboard" element={
+              <ProtectedRoute requiredRole="admin">
+                <Layout><FarmerDashboard /></Layout>
+              </ProtectedRoute>
+            } />
+            
             {/* Department Routes */}
             <Route path="/department" element={
               <ProtectedRoute requiredRole="department">
@@ -125,17 +137,20 @@ export default function App() {
                 <Layout><ProgressiveExpenseTracker /></Layout>
               </ProtectedRoute>
             } />
+            
             {/* Redirect authenticated users to their dashboard */}
             <Route path="/dashboard" element={
               isAuthenticated ? (
-                user?.role === 'admin' ? <Navigate to="/admin" /> : <Navigate to="/department" />
+                user?.role === 'admin' ? <Navigate to="/admin/farmer-dashboard" /> : <Navigate to="/department" />
               ) : (
                 <Navigate to="/login" />
               )
             } />
+            
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          
           {/* Slidable Chatbot floating button and panel for all pages */}
           <SlidableChatbot />
         </div>

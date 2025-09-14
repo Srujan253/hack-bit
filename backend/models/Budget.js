@@ -46,6 +46,15 @@ const budgetSchema = new mongoose.Schema({
     enum: ['draft', 'active', 'completed', 'suspended'],
     default: 'draft'
   },
+  // Smart contract integration fields
+  smartContractId: {
+    type: Number,
+    default: null
+  },
+  blockchainTxHash: {
+    type: String,
+    default: null
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

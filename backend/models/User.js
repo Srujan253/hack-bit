@@ -45,6 +45,15 @@ const userSchema = new mongoose.Schema({
     },
     minlength: 6
   },
+  // Smart contract integration fields
+  smartContractId: {
+    type: Number,
+    default: null
+  },
+  walletAddress: {
+    type: String,
+    default: null
+  },
   isApproved: {
     type: Boolean,
     default: false

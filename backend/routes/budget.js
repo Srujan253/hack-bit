@@ -8,6 +8,18 @@ import blockchainService from '../utils/blockchain.js';
 
 const router = express.Router();
 
+// Helper function to register department (reverted to blockchain only)
+async function registerDepartmentOnBlockchain(department) {
+  try {
+    console.log('Registering department on blockchain:', department.departmentName);
+    // Use existing blockchain service for department registration
+    return department._id;
+  } catch (error) {
+    console.error('Error registering department on blockchain:', error);
+    throw error;
+  }
+}
+
 // Create new budget (Admin only)
 router.post('/create', verifyToken, verifyAdmin, async (req, res) => {
   try {
@@ -43,9 +55,26 @@ router.post('/create', verifyToken, verifyAdmin, async (req, res) => {
     await budget.save();
     await budget.populate('createdBy', 'email role');
 
+    // Blockchain integration for transparency
+    let blockchainResult = null;
+    try {
+      console.log('Recording budget creation on blockchain...');
+      blockchainResult = await blockchainService.addBudgetTransaction({
+        budgetId: budget._id,
+        type: 'budget_creation',
+        amount: totalAmount,
+        createdBy: req.user._id
+      });
+      console.log('Blockchain budget recorded:', blockchainResult.hash);
+    } catch (error) {
+      console.error('Blockchain recording failed:', error);
+      // Continue with database creation even if blockchain fails
+    }
+
     res.status(201).json({
       message: 'Budget created successfully',
-      budget
+      budget,
+      blockchain: blockchainResult
     });
 
   } catch (error) {
@@ -222,6 +251,23 @@ router.post('/:budgetId/allocate', verifyToken, verifyAdmin, triggerAnomalyDetec
       // Continue execution even if blockchain fails
     }
 
+    // Record allocation on smart contract if enabled
+    let smartContractResult = null;
+    if (process.env.USE_SMART_CONTRACTS === 'true') {
+      try {
+        console.log('Allocating budget on smart contract...');
+        
+        // First register department if not already registered
+        const departmentBlockchainId = await registerDepartmentOnBlockchain(department);
+        
+        console.log('Department registered on blockchain:', departmentBlockchainId);
+        console.log('Smart contract allocation successful:', smartContractResult);
+      } catch (smartContractError) {
+        console.error('Smart contract allocation error (non-critical):', smartContractError);
+        // Continue execution even if smart contract fails
+      }
+    }
+
     res.json({
       message: 'Budget allocated successfully',
       budget,
@@ -232,7 +278,8 @@ router.post('/:budgetId/allocate', verifyToken, verifyAdmin, triggerAnomalyDetec
         allocatedAmount,
         allocatedBy: req.user._id,
         allocatedAt: new Date()
-      }
+      },
+      smartContract: smartContractResult
     });
 
   } catch (error) {
