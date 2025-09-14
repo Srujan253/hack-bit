@@ -12,19 +12,20 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.15",
     "axios": "^1.12.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
     "node-cron": "^4.2.1",
-    "validator": "^13.11.0",
-    "web3": "^4.3.0",
     "solc": "^0.8.21",
-    "@truffle/hdwallet-provider": "^2.1.15"
+    "validator": "^13.11.0",
+    "web3": "^4.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

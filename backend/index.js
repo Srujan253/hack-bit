@@ -12,6 +12,7 @@ import publicRoutes from "./routes/public.js";
 import alertRoutes from "./routes/alerts.js";
 import currencyRoutes from "./routes/currency.js";
 import chatRoutes from "./routes/chat.js";
+import budgetCommentsRoutes from "./routes/budgetComments.js";
 
 // Import models
 import User from "./models/User.js";
@@ -106,6 +107,7 @@ app.use("/api/public", publicRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/currency", currencyRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/comments", budgetCommentsRoutes);
 
 // Health check route
 app.get("/", (req, res) => {
